@@ -1,0 +1,18 @@
+{
+  "cSpell.words": [],
+  "cSpell.language": "en,es,pt,pt_BR",
+  "files.associations": { "*.json": "jsonc" },
+  "editor.detectIndentation": false,
+  "editor.insertSpaces": true,
+  "editor.renderWhitespace": "all",
+  "editor.rulers": [80, 120, 140],
+  "editor.tabSize": 2,
+  "editor.trimAutoWhitespace": false,
+  "task.autoDetect": "off",
+  "typescript.tsdk": "node_modules/typescript/lib",
+  "scss.lint.unknownAtRules": "ignore",
+  "editor.codeActionsOnSave": { "source.fixAll.eslint": "never" },
+  "prettier.printWidth": 140,
+  "prettier.quoteProps": "consistent",
+  "css.lint.unknownAtRules": "ignore"
+}
