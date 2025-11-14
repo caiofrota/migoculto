@@ -1,5 +1,8 @@
 @import "tailwindcss";
-@custom-variant dark (&:where(.dark, .dark *));
+
+@theme {
+  --color-red-920: #6b0000;
+}
 
 @layer components {
   html {
