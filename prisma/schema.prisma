@@ -1,0 +1,125 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client"
+  output   = "../.prisma"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        Int      @id @default(autoincrement())
+  email     String   @unique
+  firstName String?  @map("first_name")
+  lastName  String?  @map("last_name")
+  password  String
+  role      RoleEnum @default(USER)
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  groups  Group[]
+  members Member[] @relation("GroupMembers")
+  matches Member[] @relation("MemberMatches")
+
+  @@index([email], name: "user_email_idx")
+  @@index([role], name: "user_role_idx")
+  @@map("user")
+}
+
+model Group {
+  id             Int             @id @default(autoincrement())
+  name           String
+  password       String
+  description    String?
+  additionalInfo String?         @map("additional_info")
+  ownerId        Int             @map("owner_id")
+  eventDate      DateTime        @map("event_date")
+  location       String?
+  status         EnumGroupStatus @default(OPEN)
+  createdAt      DateTime        @default(now()) @map("created_at")
+  updatedAt      DateTime        @updatedAt @map("updated_at")
+
+  owner    User      @relation(fields: [ownerId], references: [id])
+  members  Member[]
+  messages Message[]
+
+  @@index([ownerId], name: "group_owner_idx")
+  @@index([status], name: "group_status_idx")
+  @@map("group")
+}
+
+model Member {
+  id          Int      @id @default(autoincrement())
+  groupId     Int      @map("group_id")
+  userId      Int      @map("user_id")
+  matchId     Int?     @map("match_id")
+  isConfirmed Boolean  @default(false) @map("is_confirmed")
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  group            Group      @relation(fields: [groupId], references: [id])
+  user             User       @relation("GroupMembers", fields: [userId], references: [id])
+  match            User?      @relation("MemberMatches", fields: [matchId], references: [id])
+  wishlist         Wishlist[]
+  receivedMessages Message[]  @relation("MemberReceivedMessages")
+  sentMessages     Message[]  @relation("MemberSentMessages")
+
+  @@index([groupId], name: "member_group_idx")
+  @@index([userId], name: "member_user_idx")
+  @@index([matchId], name: "member_match_idx")
+  @@map("member")
+}
+
+model Wishlist {
+  id          Int      @id @default(autoincrement())
+  memberId    Int      @map("member_id")
+  name        String
+  description String?
+  url         String?
+  priority    Int?
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  member Member @relation(fields: [memberId], references: [id])
+
+  @@index([memberId], name: "wishlist_member_idx")
+  @@map("wishlist")
+}
+
+model Message {
+  id          Int      @id @default(autoincrement())
+  groupId     Int      @map("group_id")
+  senderId    Int      @map("sender_id")
+  receiverId  Int?     @map("receiver_id")
+  content     String
+  isAnonymous Boolean  @default(false) @map("is_anonymous")
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  group    Group   @relation(fields: [groupId], references: [id])
+  sender   Member  @relation("MemberSentMessages", fields: [senderId], references: [id])
+  receiver Member? @relation("MemberReceivedMessages", fields: [receiverId], references: [id])
+
+  @@index([groupId], name: "message_group_idx")
+  @@index([senderId], name: "message_sender_idx")
+  @@index([receiverId], name: "message_receiver_idx")
+  @@map("message")
+}
+
+enum RoleEnum {
+  USER
+  ADMIN
+}
+
+enum EnumGroupStatus {
+  OPEN
+  CLOSED
+  DRAWN
+}
