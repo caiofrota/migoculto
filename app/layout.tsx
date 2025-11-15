@@ -1,5 +1,6 @@
 import { Metadata } from "next";
 import "./globals.css";
+import { Providers } from "./providers";
 
 export async function generateMetadata(): Promise<Metadata> {
   return {
@@ -30,7 +31,9 @@ export default async function RootLayout({ children }: Props) {
   return (
     <html>
       <body>
-        <main>{children}</main>
+        <main>
+          <Providers>{children}</Providers>
+        </main>
       </body>
     </html>
   );
