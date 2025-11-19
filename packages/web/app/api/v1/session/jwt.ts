@@ -1,3 +1,4 @@
+import { UnauthorizedError } from "errors";
 import { JWTPayload, jwtVerify, SignJWT } from "jose";
 import { NextRequest } from "next/server";
 
@@ -30,7 +31,8 @@ export async function verify<T = JWTPayload & SessionPayload>(token: string): Pr
 
 export async function getJwtPayloadFromCookies(request: NextRequest) {
   const token = request.cookies.get("access_token")?.value;
-  if (!token) throw new Error("No access token");
+  if (!token)
+    throw new UnauthorizedError({ message: "No access token in cookies", action: "Please log in to obtain a valid access token." });
   return await verify(token);
 }
 
@@ -40,7 +42,11 @@ export async function getJwtPayload(request: NextRequest) {
   } catch {
     const authHeader = request.headers.get("Authorization");
     const bearerToken = authHeader && authHeader.startsWith("Bearer ") ? authHeader.slice(7) : null;
-    if (!bearerToken) throw new Error("No access token");
+    if (!bearerToken)
+      throw new UnauthorizedError({
+        message: "No access token provided",
+        action: "Please provide a valid access token in the Authorization header.",
+      });
     return await verify(bearerToken);
   }
 }

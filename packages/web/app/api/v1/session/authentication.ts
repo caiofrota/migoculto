@@ -1,7 +1,7 @@
 import bcrypt from "bcryptjs";
 import { prisma } from "lib/database";
 import { UnauthorizedError } from "errors";
-import { createAccessToken, createRefreshToken, getJwtPayloadFromCookies, verify } from "./jwt";
+import { createAccessToken, createRefreshToken, getJwtPayload, getJwtPayloadFromCookies, verify } from "./jwt";
 import { NextRequest } from "next/server";
 
 async function getUser(params: { id: number } | { email: string }) {
@@ -67,10 +67,8 @@ export async function getSessionUser(request: NextRequest) {
 }
 
 export async function getRequestUser(request: NextRequest) {
-  const payload = await getJwtPayloadFromCookies(request);
-  if (!payload) return null;
+  const payload = await getJwtPayload(request);
   const user = await getUser({ id: Number(payload?.sub) });
-  if (!user) return null;
   const { password, ...userWithoutPassword } = user;
   return userWithoutPassword;
 }
