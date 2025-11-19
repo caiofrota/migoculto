@@ -78,3 +78,21 @@ export class UnauthorizedError extends BaseError {
     });
   }
 }
+
+export class ForbiddenError extends BaseError {
+  constructor(
+    args: Pick<BaseErrorParams, "action" | "requestId" | "stack" | "errorLocationCode"> & {
+      message?: string;
+    } = {},
+  ) {
+    super({
+      name: "ForbiddenError",
+      message: args.message || "Usuário não autorizado a acessar este recurso.",
+      action: args.action || "Por favor, verifique se você tem as permissões necessárias e tente novamente.",
+      requestId: args.requestId,
+      statusCode: 403,
+      stack: args.stack,
+      errorLocationCode: args.errorLocationCode,
+    });
+  }
+}

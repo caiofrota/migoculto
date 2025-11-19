@@ -3,13 +3,13 @@ import { NextRequest, NextResponse } from "next/server";
 import z from "zod";
 import { $ZodError, $ZodRawIssue } from "zod/v4/core";
 
-type Handler = (req: NextRequest) => Promise<NextResponse> | NextResponse;
+type Handler = (req: NextRequest, params?: any) => Promise<NextResponse> | NextResponse;
 
 export async function withErrorHandling(handler: Handler): Promise<Handler> {
   z.config({ customError });
-  return async (req) => {
+  return async (req, params) => {
     try {
-      return await handler(req);
+      return await handler(req, params);
     } catch (error) {
       if (error instanceof BaseError) {
         return NextResponse.json(

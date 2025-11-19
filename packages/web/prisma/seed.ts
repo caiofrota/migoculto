@@ -16,6 +16,18 @@ async function main() {
       password: hashedPassword,
     },
   });
+
+  await prisma.group.upsert({
+    where: { id: 1 },
+    update: {},
+    create: {
+      name: "Default Group",
+      description: "This is the default group.",
+      eventDate: new Date(),
+      password: "pass",
+      ownerId: 1,
+    },
+  });
 }
 
 main()
