@@ -5,11 +5,6 @@ import { NextRequest, NextResponse } from "next/server";
 import z from "zod";
 import { authenticateWithCredentials } from "./authentication";
 
-export async function GET(req: Request) {
-  console.log(req);
-  return NextResponse.json({ status: "ok" }, { status: 200 });
-}
-
 async function handlePost(req: NextRequest) {
   const startMs = Date.now();
   try {

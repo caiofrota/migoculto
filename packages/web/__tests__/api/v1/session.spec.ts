@@ -27,17 +27,32 @@ vi.mock("jose", () => ({
 }));
 
 describe("Session API", async () => {
-  const defaultUser = {
-    id: 1,
-    password: await bcrypt.hash("password", 10),
-    email: "admin@test.com",
-    username: "admin",
-    firstName: "Admin",
-    lastName: "User",
-    createdAt: new Date(),
-    updatedAt: new Date(),
-    role: "ADMIN" as const,
-  };
+  const users = [
+    {
+      id: 1,
+      password: await bcrypt.hash("password", 10),
+      email: "admin@test.com",
+      username: "admin",
+      firstName: "Admin",
+      lastName: "User",
+      isActive: true,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+      role: "ADMIN" as const,
+    },
+    {
+      id: 2,
+      password: await bcrypt.hash("anything", 10),
+      email: "inactive@test.com",
+      username: "user",
+      firstName: "User",
+      lastName: "Test",
+      isActive: false,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+      role: "USER" as const,
+    },
+  ];
 
   beforeAll(() => {
     vi.stubEnv("ACCESS_TOKEN_EXPIRES_IN", "1m");
@@ -54,7 +69,9 @@ describe("Session API", async () => {
   });
 
   beforeEach(() => {
-    prisma.user.findUnique.mockImplementation((args) => (args.where.email === "admin@test.com" ? defaultUser : null) as any);
+    prisma.user.findUnique.mockImplementation(
+      (args) => users.find((user) => (args.where.id ? user.id === args.where.id : user.email === args.where.email)) as any,
+    );
   });
 
   it("should return 200 for correct credentials and set cookies with access and refresh tokens", async () => {
@@ -73,6 +90,28 @@ describe("Session API", async () => {
     expect(data).toEqual({ status: "ok" });
     expect(response.cookies.get("access_token")?.value).toBe("access_token");
     expect(response.cookies.get("refresh_token")?.value).toBe("refresh_token");
+  });
+
+  it("should return 401 for a inactive user", async () => {
+    const request = new NextRequest("http://localhost/api/v1/session", {
+      method: "POST",
+      body: JSON.stringify({ username: "inactive@test.com", password: "anything" }),
+    });
+
+    const startMs = Date.now();
+    const response = await POST(request);
+    const endMs = Date.now();
+
+    const data = await response.json();
+    expect(response.status).toBe(401);
+    expect(endMs - startMs).toBeGreaterThan(10); // Ensure the response time is at least 10ms to mitigate timing attacks
+    expect(data).toMatchObject({
+      error: "UnauthorizedError",
+      error_id: expect.stringMatching(/^.+$/),
+      message: "Nome de usuário ou senha está incorreto.",
+      action: "Por favor, verifique seu nome de usuário e senha e tente novamente.",
+      status: "error",
+    });
   });
 
   it("should return 401 for incorrect credentials", async () => {

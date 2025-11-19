@@ -1,18 +1,26 @@
 import bcrypt from "bcryptjs";
-import { PrismaFactory } from "lib/database";
+import { prisma } from "lib/database";
 import { UnauthorizedError } from "errors";
-import { createAccessToken, createRefreshToken, verify } from "./jwt";
+import { createAccessToken, createRefreshToken, getJwtPayloadFromCookies, verify } from "./jwt";
+import { NextRequest } from "next/server";
 
-async function getUserByEmail(username: string) {
-  const user = await PrismaFactory.getInstance().user.findUnique({ where: { email: username } });
-  if (!user) {
+async function getUser(params: { id: number } | { email: string }) {
+  const user = await prisma.user.findUnique({ where: params });
+  if (user) {
+    if (user.isActive) {
+      return user;
+    }
     throw new UnauthorizedError({
-      message: "Usuário não encontrado.",
-      action: "Por favor, verifique o nome de usuário e tente novamente.",
-      errorLocationCode: "SESSION:AUTHENTICATION:GET_USER_BY_EMAIL:USER_NOT_FOUND",
+      message: "Conta de usuário inativa.",
+      action: "Por favor, entre em contato com o suporte para reativar sua conta.",
+      errorLocationCode: "SESSION:AUTHENTICATION:GET_USER_BY_EMAIL:USER_INACTIVE",
     });
   }
-  return user;
+  throw new UnauthorizedError({
+    message: "Usuário não encontrado.",
+    action: "Por favor, verifique o nome de usuário e tente novamente.",
+    errorLocationCode: "SESSION:AUTHENTICATION:GET_USER_BY_EMAIL:USER_NOT_FOUND",
+  });
 }
 
 async function comparePasswords(password: string, hashedPassword: string) {
@@ -27,7 +35,7 @@ async function comparePasswords(password: string, hashedPassword: string) {
 }
 
 export async function authenticateWithCredentials(email: string, password: string) {
-  const user = await getUserByEmail(email);
+  const user = await getUser({ email });
   await comparePasswords(password, user.password);
   return {
     accessToken: await createAccessToken({ sub: String(user.id), email, role: user.role }),
@@ -38,8 +46,7 @@ export async function authenticateWithCredentials(email: string, password: strin
 export async function authenticateWithRefreshToken(refreshToken: string) {
   try {
     const { sub } = await verify(refreshToken);
-    const user = await PrismaFactory.getInstance().user.findUnique({ where: { id: Number(sub) } });
-    if (!user) throw new UnauthorizedError({ message: "Usuário não encontrado." });
+    const user = await getUser({ id: Number(sub) });
     return {
       accessToken: await createAccessToken({ sub: String(user.id), email: user.email, role: user.role }),
       refreshToken: await createRefreshToken({ sub: String(user.id) }),
@@ -50,4 +57,20 @@ export async function authenticateWithRefreshToken(refreshToken: string) {
       action: "Por favor, forneça um token de atualização válido.",
     });
   }
+}
+
+export async function getSessionUser(request: NextRequest) {
+  const payload = await getJwtPayloadFromCookies(request);
+  const user = await getUser({ id: Number(payload?.sub) });
+  const { password, ...userWithoutPassword } = user;
+  return userWithoutPassword;
+}
+
+export async function getRequestUser(request: NextRequest) {
+  const payload = await getJwtPayloadFromCookies(request);
+  if (!payload) return null;
+  const user = await getUser({ id: Number(payload?.sub) });
+  if (!user) return null;
+  const { password, ...userWithoutPassword } = user;
+  return userWithoutPassword;
 }
