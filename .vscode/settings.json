@@ -1,5 +1,5 @@
 {
-  "cSpell.words": ["autoincrement", "datasource", "migoculto", "mysql"],
+  "cSpell.words": ["autoincrement", "datasource", "migoculto", "mysql", "worklets"],
   "cSpell.language": "en,es,pt,pt_BR",
   "files.associations": { "*.json": "jsonc" },
   "editor.detectIndentation": false,
@@ -11,7 +11,12 @@
   "task.autoDetect": "off",
   "typescript.tsdk": "node_modules/typescript/lib",
   "scss.lint.unknownAtRules": "ignore",
-  "editor.codeActionsOnSave": { "source.fixAll.eslint": "never" },
+  "editor.codeActionsOnSave": {
+    "source.fixAll.eslint": "explicit",
+    "source.fixAll": "explicit",
+    "source.organizeImports": "explicit",
+    "source.sortMembers": "explicit"
+  },
   "prettier.printWidth": 140,
   "prettier.quoteProps": "consistent",
   "css.lint.unknownAtRules": "ignore",
