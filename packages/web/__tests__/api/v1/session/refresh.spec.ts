@@ -91,7 +91,7 @@ describe("Session Refresh API", () => {
 
     const data = await response.json();
     expect(response.status).toBe(200);
-    expect(data).toEqual({ status: "ok" });
+    expect(data).toEqual({ access_token: expect.any(String), refresh_token: expect.any(String) });
     expect(response.cookies.get("access_token")?.value).toBe("access_token");
     expect(response.cookies.get("refresh_token")?.value).toBe("refresh_token");
   });

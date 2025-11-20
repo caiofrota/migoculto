@@ -13,7 +13,7 @@ async function handlePost(req: NextRequest) {
 
     const tokens = await authenticateWithCredentials(username, password);
 
-    const res = NextResponse.json({ status: "ok" }, { status: 200 });
+    const res = NextResponse.json({ access_token: tokens.accessToken, refresh_token: tokens.refreshToken }, { status: 200 });
 
     res.cookies.set("access_token", tokens.accessToken, {
       httpOnly: true,

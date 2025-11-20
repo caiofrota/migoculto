@@ -1,7 +1,7 @@
-import { NextRequest, NextResponse } from "next/server";
-import { authenticateWithRefreshToken } from "../authentication";
 import { UnauthorizedError } from "errors";
 import { withErrorHandling } from "errors/handler";
+import { NextRequest, NextResponse } from "next/server";
+import { authenticateWithRefreshToken } from "../authentication";
 
 async function handlePost(req: NextRequest) {
   const refreshToken = req.cookies.get("refresh_token")?.value;
@@ -13,7 +13,7 @@ async function handlePost(req: NextRequest) {
   }
 
   const tokens = await authenticateWithRefreshToken(refreshToken);
-  const res = NextResponse.json({ status: "ok" }, { status: 200 });
+  const res = NextResponse.json({ access_token: tokens.accessToken, refresh_token: tokens.refreshToken }, { status: 200 });
 
   res.cookies.set("access_token", tokens.accessToken, {
     httpOnly: true,
