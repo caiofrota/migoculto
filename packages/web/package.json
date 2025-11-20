@@ -6,6 +6,7 @@
   "author": "Caio Frota <caiofrota@gmail.com>",
   "license": "MIT",
   "scripts": {
+    "postinstall": "prisma generate",
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
