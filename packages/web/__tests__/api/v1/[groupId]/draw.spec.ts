@@ -107,10 +107,10 @@ describe("Draw secret friends from group endpoint", () => {
     const response = await POST(request, { params: { groupId: 1 } });
     expect(response.status).toBe(401);
     expect(await response.json()).toEqual({
-      action: "Please provide a valid access token in the Authorization header.",
+      action: "Por favor, forneça um token de acesso válido no cabeçalho de autorização.",
       error: "UnauthorizedError",
       error_id: expect.any(String),
-      message: "No access token provided",
+      message: "Nenhum token de acesso no cabeçalho de autorização.",
       status: "error",
     });
   });

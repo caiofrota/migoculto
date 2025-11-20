@@ -32,7 +32,10 @@ export async function verify<T = JWTPayload & SessionPayload>(token: string): Pr
 export async function getJwtPayloadFromCookies(request: NextRequest) {
   const token = request.cookies.get("access_token")?.value;
   if (!token)
-    throw new UnauthorizedError({ message: "No access token in cookies", action: "Please log in to obtain a valid access token." });
+    throw new UnauthorizedError({
+      message: "Nenhum token de acesso nos cookies",
+      action: "Por favor, faça login para obter um token de acesso válido.",
+    });
   return await verify(token);
 }
 
@@ -44,8 +47,8 @@ export async function getJwtPayload(request: NextRequest) {
     const bearerToken = authHeader && authHeader.startsWith("Bearer ") ? authHeader.slice(7) : null;
     if (!bearerToken)
       throw new UnauthorizedError({
-        message: "No access token provided",
-        action: "Please provide a valid access token in the Authorization header.",
+        message: "Nenhum token de acesso no cabeçalho de autorização.",
+        action: "Por favor, forneça um token de acesso válido no cabeçalho de autorização.",
       });
     return await verify(bearerToken);
   }
