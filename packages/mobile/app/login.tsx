@@ -1,4 +1,5 @@
 import { useAuth } from "@/components/provider";
+import { CustomError } from "@/errors";
 import React, { useState } from "react";
 import { ActivityIndicator, Image, StyleSheet, Text, TextInput, TouchableOpacity, View } from "react-native";
 
@@ -29,7 +30,11 @@ export default function LoginScreen() {
       }
       await login(email.trim(), password);
     } catch (err: any) {
-      setError(err.message || "Não foi possível entrar. Tente novamente.");
+      if (err instanceof CustomError) {
+        setError([err.message, err.action].filter(Boolean).join(" "));
+      } else {
+        setError(err.message || "Não foi possível entrar. Tente novamente.");
+      }
     }
   }
 
