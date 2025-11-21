@@ -9,7 +9,7 @@ type BaseErrorParams = {
 export class CustomError extends Error {
   action: string | undefined;
   statusCode: number;
-  errorId: string;
+  errorId: string | undefined;
   requestId: string | undefined;
   context: Record<string, any> | undefined;
   errorLocationCode: string | undefined;
@@ -20,7 +20,7 @@ export class CustomError extends Error {
     args: BaseErrorParams = {
       name: "CustomError",
       message: "Ocorreu um erro inesperado.",
-      action: "Por favor, tente novamente mais tarde.",
+      action: "Por favor, entre em contato com o suporte caso o problema persista.",
     },
   ) {
     super();
@@ -28,7 +28,7 @@ export class CustomError extends Error {
     this.message = args.message;
     this.action = args.action;
     this.statusCode = args.statusCode || 500;
-    this.errorId = args.errorId || crypto.randomUUID();
+    this.errorId = args.errorId;
   }
 }
 

@@ -9,15 +9,16 @@ class CreateApiService {
       method: "POST",
       body: JSON.stringify({ username, password }),
     });
-    const data = await response.json();
-    if (!response.ok) {
+    const isJSON = response.headers.get("content-type")?.includes("application/json");
+    const data = isJSON ? await response.json() : null;
+    if (!response.ok || !isJSON) {
       if (data && (data as any).message) {
-        throw new Error((data as any).message);
+        throw new CustomError(data);
       }
       throw new CustomError({
         name: "LoginError",
         message: "Ocorreu um erro ao fazer login.",
-        action: "Por favor, contate o suporte caso o problema persista.",
+        action: "Por favor, entre em contato com o suporte caso o problema persista.",
       });
     }
     await saveTokens(data.access_token, data.refresh_token);
@@ -83,7 +84,7 @@ class CreateApiService {
 
   private async fetch(uri: string, options?: RequestInit): ReturnType<typeof fetch> {
     const response = await this.fetchOnce(uri, options);
-    const data = await response.json();
+    const data = await response.clone().json();
     if (!response.ok && data.error === "UnauthorizedError") {
       await this.refreshTokens();
       return await this.fetchOnce(uri, options);
