@@ -56,7 +56,7 @@ describe("GET /api/v1/session/me", () => {
     const req = new NextRequest("http://localhost/api/v1/session/me", {
       method: "GET",
       headers: {
-        Cookie: "access_token=valid_token",
+        Authorization: "Bearer valid_token",
       },
     });
 
@@ -77,7 +77,7 @@ describe("GET /api/v1/session/me", () => {
     const req = new NextRequest("http://localhost/api/v1/session/me", {
       method: "GET",
       headers: {
-        Cookie: "access_token=invalid_token",
+        Authorization: "Bearer invalid_token",
       },
     });
 
@@ -88,7 +88,7 @@ describe("GET /api/v1/session/me", () => {
       action: "Por favor, forneça um token de acesso válido no cabeçalho de autorização.",
       error_id: expect.stringMatching(/^.+$/),
       error: "UnauthorizedError",
-      message: "Nenhum token de acesso no cabeçalho de autorização.",
+      message: "Token de acesso inválido no cabeçalho de autorização.",
       status: "error",
     });
   });
@@ -100,7 +100,7 @@ describe("GET /api/v1/session/me", () => {
     const req = new NextRequest("http://localhost/api/v1/session/me", {
       method: "GET",
       headers: {
-        Cookie: "access_token=valid_token",
+        Authorization: "Bearer valid_token",
       },
     });
 
@@ -123,7 +123,7 @@ describe("GET /api/v1/session/me", () => {
     const req = new NextRequest("http://localhost/api/v1/session/me", {
       method: "GET",
       headers: {
-        Cookie: "access_token=valid_token",
+        Authorization: "Bearer valid_token",
       },
     });
 

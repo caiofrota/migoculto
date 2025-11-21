@@ -77,7 +77,7 @@ describe("Session Refresh API", () => {
     );
   });
 
-  it("should return 200 for a valid token refresh", async () => {
+  it("should return 200 for a valid token refresh in cookies", async () => {
     hoisted.mockedVerifyToken.mockResolvedValueOnce({ sub: "1" });
     hoisted.mockedToken.mockResolvedValueOnce("access_token");
     hoisted.mockedToken.mockResolvedValueOnce("refresh_token");
@@ -85,6 +85,25 @@ describe("Session Refresh API", () => {
     const request = new NextRequest("http://localhost/api/v1/session/refresh", {
       method: "POST",
       headers: { Cookie: "refresh_token=valid_refresh_token" },
+    });
+
+    const response = await POST(request);
+
+    const data = await response.json();
+    expect(response.status).toBe(200);
+    expect(data).toEqual({ access_token: expect.any(String), refresh_token: expect.any(String) });
+    expect(response.cookies.get("access_token")?.value).toBe("access_token");
+    expect(response.cookies.get("refresh_token")?.value).toBe("refresh_token");
+  });
+
+  it("should return 200 for a valid token refresh in authorization header", async () => {
+    hoisted.mockedVerifyToken.mockResolvedValueOnce({ sub: "1" });
+    hoisted.mockedToken.mockResolvedValueOnce("access_token");
+    hoisted.mockedToken.mockResolvedValueOnce("refresh_token");
+
+    const request = new NextRequest("http://localhost/api/v1/session/refresh", {
+      method: "POST",
+      headers: { Authorization: "Bearer valid_refresh_token" },
     });
 
     const response = await POST(request);

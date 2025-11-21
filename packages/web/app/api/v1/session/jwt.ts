@@ -45,11 +45,19 @@ export async function getJwtPayload(request: NextRequest) {
   } catch {
     const authHeader = request.headers.get("Authorization");
     const bearerToken = authHeader && authHeader.startsWith("Bearer ") ? authHeader.slice(7) : null;
-    if (!bearerToken)
+    if (!bearerToken) {
       throw new UnauthorizedError({
         message: "Nenhum token de acesso no cabeçalho de autorização.",
         action: "Por favor, forneça um token de acesso válido no cabeçalho de autorização.",
       });
-    return await verify(bearerToken);
+    }
+    try {
+      return await verify(bearerToken);
+    } catch {
+      throw new UnauthorizedError({
+        message: "Token de acesso inválido no cabeçalho de autorização.",
+        action: "Por favor, forneça um token de acesso válido no cabeçalho de autorização.",
+      });
+    }
   }
 }

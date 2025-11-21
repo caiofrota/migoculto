@@ -4,12 +4,15 @@ import { NextRequest, NextResponse } from "next/server";
 import { authenticateWithRefreshToken } from "../authentication";
 
 async function handlePost(req: NextRequest) {
-  const refreshToken = req.cookies.get("refresh_token")?.value;
+  let refreshToken = req.cookies.get("refresh_token")?.value;
   if (!refreshToken) {
-    throw new UnauthorizedError({
-      message: "Nenhum token de atualização fornecido.",
-      action: "Por favor, forneça um token de atualização válido.",
-    });
+    refreshToken = req.headers.get("Authorization")?.replace("Bearer ", "");
+    if (!refreshToken) {
+      throw new UnauthorizedError({
+        message: "Nenhum token de atualização fornecido.",
+        action: "Por favor, forneça um token de atualização válido.",
+      });
+    }
   }
 
   const tokens = await authenticateWithRefreshToken(refreshToken);
