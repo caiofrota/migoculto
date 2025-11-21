@@ -1,12 +1,6 @@
+import { apiService, User } from "@/services/api";
 import React, { createContext, useContext, useEffect, useState } from "react";
-import { login as loginService, logout as logoutService } from "../services/auth";
 import { getAccessToken } from "../storage";
-
-type User = {
-  id: number;
-  name: string;
-  email: string;
-};
 
 type AppContextValue = {
   user: User | null;
@@ -26,14 +20,9 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
       const token = await getAccessToken();
       if (token) {
         try {
-          const res = await fetch(`${process.env.EXPO_PUBLIC_API_URL}/session/me`, {
-            headers: { Authorization: `Bearer ${token}` },
-          });
-          if (res.ok) {
-            const data: User = await res.json();
-            console.log(data);
-            setUser(data);
-          }
+          const res = await apiService.me();
+          console.log(res);
+          setUser(res);
         } catch {
           // TODO
         }
@@ -45,7 +34,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
   async function login(email: string, password: string) {
     setLoading(true);
     try {
-      const loggedUser = await loginService(email, password);
+      const loggedUser = await apiService.login(email, password);
       setUser(loggedUser);
     } finally {
       setLoading(false);
@@ -55,7 +44,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
   async function logout() {
     setLoading(true);
     try {
-      await logoutService();
+      await apiService.logout();
       setUser(null);
     } finally {
       setLoading(false);
