@@ -57,13 +57,16 @@ model Group {
 }
 
 model Member {
-  id          Int      @id @default(autoincrement())
-  groupId     Int      @map("group_id")
-  userId      Int      @map("user_id")
-  matchId     Int?     @map("match_id")
-  isConfirmed Boolean  @default(false) @map("is_confirmed")
-  createdAt   DateTime @default(now()) @map("created_at")
-  updatedAt   DateTime @updatedAt @map("updated_at")
+  id          Int       @id @default(autoincrement())
+  groupId     Int       @map("group_id")
+  userId      Int       @map("user_id")
+  matchId     Int?      @map("match_id")
+  isConfirmed Boolean   @default(false) @map("is_confirmed")
+  createdAt   DateTime  @default(now()) @map("created_at")
+  updatedAt   DateTime  @updatedAt @map("updated_at")
+  archivedAt  DateTime? @map("archived_at")
+  joinedAt    DateTime? @map("joined_at")
+  lastReadAt  DateTime? @map("last_read_at")
 
   group            Group      @relation(fields: [groupId], references: [id])
   user             User       @relation("GroupMembers", fields: [userId], references: [id])
