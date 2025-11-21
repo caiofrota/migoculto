@@ -63,7 +63,6 @@ describe("Draw secret friends from group endpoint", () => {
 
   beforeEach(() => {
     prisma.user.findUnique.mockImplementation((args) => {
-      console.log("Mocked findUnique called with args:", args);
       return users.find((user) => user.id === args.where.id) as any;
     });
   });

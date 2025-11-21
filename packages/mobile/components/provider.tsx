@@ -21,7 +21,6 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
       if (token) {
         try {
           const res = await apiService.me();
-          console.log(res);
           setUser(res);
         } catch {
           // TODO
