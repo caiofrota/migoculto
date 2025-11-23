@@ -16,6 +16,7 @@
     "lint:fix": "prettier --write ."
   },
   "dependencies": {
+    "@prisma/adapter-mariadb": "^7.0.0",
     "@prisma/client": "^7.0.0",
     "@tailwindcss/postcss": "^4.1.17",
     "@tanstack/react-query": "^5.90.9",
