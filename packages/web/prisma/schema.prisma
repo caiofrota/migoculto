@@ -11,7 +11,6 @@ generator client {
 
 datasource db {
   provider = "mysql"
-  url      = env("DATABASE_URL")
 }
 
 model User {
@@ -25,9 +24,12 @@ model User {
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 
-  groups  Group[]
-  members Member[] @relation("GroupMembers")
-  matches Member[] @relation("MemberMatches")
+  groups           Group[]
+  membership       Member[]   @relation("UserMembership")
+  assignedFor      Member[]   @relation("AssignedUser")
+  wishlists        Wishlist[]
+  receivedMessages Message[]  @relation("ReceivedMessages")
+  sentMessages     Message[]  @relation("SentMessages")
 
   @@index([email], name: "user_email_idx")
   @@index([role], name: "user_role_idx")
@@ -47,9 +49,10 @@ model Group {
   createdAt      DateTime        @default(now()) @map("created_at")
   updatedAt      DateTime        @updatedAt @map("updated_at")
 
-  owner    User      @relation(fields: [ownerId], references: [id])
-  members  Member[]
-  messages Message[]
+  owner     User       @relation(fields: [ownerId], references: [id])
+  members   Member[]
+  messages  Message[]
+  wishlists Wishlist[]
 
   @@index([ownerId], name: "group_owner_idx")
   @@index([status], name: "group_status_idx")
@@ -57,33 +60,28 @@ model Group {
 }
 
 model Member {
-  id          Int       @id @default(autoincrement())
-  groupId     Int       @map("group_id")
-  userId      Int       @map("user_id")
-  matchId     Int?      @map("match_id")
-  isConfirmed Boolean   @default(false) @map("is_confirmed")
-  createdAt   DateTime  @default(now()) @map("created_at")
-  updatedAt   DateTime  @updatedAt @map("updated_at")
-  archivedAt  DateTime? @map("archived_at")
-  joinedAt    DateTime? @map("joined_at")
-  lastReadAt  DateTime? @map("last_read_at")
+  id             Int      @id @default(autoincrement())
+  groupId        Int      @map("group_id")
+  userId         Int      @map("user_id")
+  assignedUserId Int?     @map("assigned_user_id")
+  isConfirmed    Boolean  @default(false) @map("is_confirmed")
+  createdAt      DateTime @default(now()) @map("created_at")
+  updatedAt      DateTime @updatedAt @map("updated_at")
 
-  group            Group      @relation(fields: [groupId], references: [id])
-  user             User       @relation("GroupMembers", fields: [userId], references: [id])
-  match            User?      @relation("MemberMatches", fields: [matchId], references: [id])
-  wishlist         Wishlist[]
-  receivedMessages Message[]  @relation("MemberReceivedMessages")
-  sentMessages     Message[]  @relation("MemberSentMessages")
+  group        Group @relation(fields: [groupId], references: [id])
+  user         User  @relation("UserMembership", fields: [userId], references: [id])
+  assignedUser User? @relation("AssignedUser", fields: [assignedUserId], references: [id])
 
   @@index([groupId], name: "member_group_idx")
   @@index([userId], name: "member_user_idx")
-  @@index([matchId], name: "member_match_idx")
+  @@index([assignedUserId], name: "member_assigned_user_idx")
   @@map("member")
 }
 
 model Wishlist {
   id          Int      @id @default(autoincrement())
-  memberId    Int      @map("member_id")
+  userId      Int      @map("user_id")
+  groupId     Int      @map("group_id")
   name        String
   description String?
   url         String?
@@ -91,9 +89,11 @@ model Wishlist {
   createdAt   DateTime @default(now()) @map("created_at")
   updatedAt   DateTime @updatedAt @map("updated_at")
 
-  member Member @relation(fields: [memberId], references: [id])
+  user  User  @relation(fields: [userId], references: [id])
+  group Group @relation(fields: [groupId], references: [id])
 
-  @@index([memberId], name: "wishlist_member_idx")
+  @@index([userId], name: "wishlist_user_idx")
+  @@index([groupId], name: "wishlist_group_idx")
   @@map("wishlist")
 }
 
@@ -107,9 +107,9 @@ model Message {
   createdAt   DateTime @default(now()) @map("created_at")
   updatedAt   DateTime @updatedAt @map("updated_at")
 
-  group    Group   @relation(fields: [groupId], references: [id])
-  sender   Member  @relation("MemberSentMessages", fields: [senderId], references: [id])
-  receiver Member? @relation("MemberReceivedMessages", fields: [receiverId], references: [id])
+  group    Group @relation(fields: [groupId], references: [id])
+  sender   User  @relation("SentMessages", fields: [senderId], references: [id])
+  receiver User? @relation("ReceivedMessages", fields: [receiverId], references: [id])
 
   @@index([groupId], name: "message_group_idx")
   @@index([senderId], name: "message_sender_idx")
