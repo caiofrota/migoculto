@@ -6,10 +6,9 @@ class CreateApiService {
 
   private async handleResponse<T>(response: Response): Promise<T> {
     try {
-      console.log("response", response);
       const data = await response.json();
       if (!response.ok) {
-        throw new CustomError(data);
+        throw new CustomError({ ...data, type: data.error });
       }
       return data;
     } catch (error) {
@@ -55,6 +54,10 @@ class CreateApiService {
     return await this.get<User>("/session/me");
   }
 
+  async getAllGroups(): Promise<Group[]> {
+    return await this.get<Group[]>("/group/all");
+  }
+
   private async buildHeaders() {
     const token = await getAccessToken();
     const headers: Record<string, string> = {
@@ -81,7 +84,7 @@ class CreateApiService {
     try {
       return await this.fetchOnce<T>(uri, options);
     } catch (err: any) {
-      if (err instanceof CustomError && err.message === "UnauthorizedError") {
+      if (err instanceof CustomError && err.type === "UnauthorizedError") {
         await this.refreshTokens();
         return await this.fetchOnce<T>(uri, options);
       }
@@ -111,4 +114,41 @@ export type User = {
   id: number;
   name: string;
   email: string;
+};
+
+export type Group = {
+  id: number;
+  password: string;
+  name: string;
+  description: string | null;
+  eventDate: Date;
+  additionalInfo: string | null;
+  location: string | null;
+  ownerId: number;
+  status: "OPEN" | "CLOSED" | "DRAWN";
+  archivedAt: Date | null;
+  isOwner: boolean;
+  isArchived: boolean;
+  unreadCount: number;
+  messages: {
+    id: number;
+    senderId: number;
+    receiverId: number | null;
+    content: string;
+    createdAt: Date;
+  }[];
+  unreadMessages: {
+    id: number;
+    senderId: number;
+    receiverId: number | null;
+    content: string;
+    createdAt: Date;
+  }[];
+  lastMessage: {
+    id: number;
+    senderId: number;
+    receiverId: number | null;
+    content: string;
+    createdAt: Date;
+  } | null;
 };

@@ -4,6 +4,7 @@ type BaseErrorParams = {
   action?: string;
   statusCode?: number;
   errorId?: string;
+  type?: string;
 };
 
 export class CustomError extends Error {
@@ -29,6 +30,7 @@ export class CustomError extends Error {
     this.action = args.action;
     this.statusCode = args.statusCode || 500;
     this.errorId = args.errorId;
+    this.type = args.type;
   }
 }
 
