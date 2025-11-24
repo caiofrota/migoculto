@@ -51,14 +51,6 @@ describe("Draw secret friends from group endpoint", () => {
       }
       return { PrismaClient: PrismaClientMock };
     });
-    vi.mock("@prisma/client", () => {
-      class PrismaClientMock {
-        constructor() {
-          return prisma;
-        }
-      }
-      return { PrismaClient: PrismaClientMock };
-    });
   });
 
   beforeEach(() => {
