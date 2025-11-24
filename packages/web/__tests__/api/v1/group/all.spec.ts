@@ -1,0 +1,106 @@
+import prisma from "__tests__/__mocks__/prisma";
+
+import { GET } from "app/api/v1/group/all/route";
+import { NextRequest } from "next/server";
+import { beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
+
+const hoisted = vi.hoisted(() => ({
+  mockedVerifyToken: vi.fn(),
+}));
+
+vi.mock("jose", () => ({
+  jwtVerify: () => {
+    return { payload: hoisted.mockedVerifyToken() };
+  },
+}));
+
+describe("GET /api/v1/group/all", () => {
+  const membership = {
+    id: 1,
+    groupId: 1,
+    userId: 1,
+    createdAt: new Date("2024-11-30T10:00:00.000Z"),
+    joinedAt: new Date("2024-11-30T10:00:00.000Z"),
+    lastReadAt: new Date("2024-11-30T13:00:00.000Z"),
+  };
+  const group = {
+    id: 1,
+    name: "Family Group",
+    password: "family123",
+    description: "A group for family members",
+    additionalInfo: "Some additional info about the family group",
+    ownerId: 1,
+    location: "123 Family St, City, Country",
+    status: "active",
+    eventDate: new Date("2024-12-25T19:00:00.000Z"),
+  };
+  const messages = [
+    {
+      id: 1,
+      senderId: 2,
+      receiverId: null,
+      content: "Hello everyone!",
+      createdAt: new Date("2024-11-30T12:00:00.000Z"),
+    },
+    {
+      id: 2,
+      senderId: 3,
+      receiverId: 1,
+      content: "Hi! How are you?",
+      createdAt: new Date("2024-11-30T14:00:00.000Z"),
+    },
+    { id: 3, senderId: 2, receiverId: null, content: "Don't forget the event tomorrow!", createdAt: new Date("2024-11-30T10:00:00.000Z") },
+    {
+      id: 4,
+      senderId: 1,
+      receiverId: null,
+      content: "Looking forward to seeing you all!",
+      createdAt: new Date("2024-11-30T15:00:00.000Z"),
+    },
+  ];
+
+  beforeAll(() => {
+    vi.mock("@prisma/client", () => {
+      class PrismaClientMock {
+        constructor() {
+          return prisma;
+        }
+      }
+      return { PrismaClient: PrismaClientMock };
+    });
+  });
+
+  beforeEach(() => {
+    prisma.user.findUnique.mockResolvedValue({
+      id: 1,
+      isActive: true,
+    } as any);
+  });
+
+  it("should return all groups for the user", async () => {
+    hoisted.mockedVerifyToken.mockReturnValue({ userId: 1 });
+    prisma.member.findMany.mockResolvedValueOnce([
+      {
+        ...membership,
+        group,
+      },
+    ] as any);
+    prisma.message.findMany.mockResolvedValueOnce(messages as any);
+
+    const request = new NextRequest("http://localhost:3000/api/v1/group/all", {
+      method: "GET",
+      headers: { Authorization: "Bearer valid_token" },
+    });
+
+    const response = await GET(request, {} as any);
+    expect(response.status).toBe(200);
+
+    const responseData = await response.json();
+    expect(responseData).toHaveLength(1);
+    expect(responseData[0].name).toBe(group.name);
+    expect(responseData[0].unreadCount).toBe(2);
+    expect(responseData[0].messages).toHaveLength(4);
+    expect(responseData[0].unreadMessages).toHaveLength(2);
+    expect(responseData[0].lastMessage?.content).toBe("Looking forward to seeing you all!");
+  });
+});
