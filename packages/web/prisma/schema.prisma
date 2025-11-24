@@ -101,14 +101,13 @@ model Wishlist {
 }
 
 model Message {
-  id          Int      @id @default(autoincrement())
-  groupId     Int      @map("group_id")
-  senderId    Int      @map("sender_id")
-  receiverId  Int?     @map("receiver_id")
-  content     String
-  isAnonymous Boolean  @default(false) @map("is_anonymous")
-  createdAt   DateTime @default(now()) @map("created_at")
-  updatedAt   DateTime @updatedAt @map("updated_at")
+  id         Int      @id @default(autoincrement())
+  groupId    Int      @map("group_id")
+  senderId   Int      @map("sender_id")
+  receiverId Int?     @map("receiver_id")
+  content    String
+  createdAt  DateTime @default(now()) @map("created_at")
+  updatedAt  DateTime @updatedAt @map("updated_at")
 
   group    Group @relation(fields: [groupId], references: [id])
   sender   User  @relation("SentMessages", fields: [senderId], references: [id])
