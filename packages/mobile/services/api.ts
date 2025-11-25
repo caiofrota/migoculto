@@ -1,5 +1,21 @@
 import { CustomError, NetworkError } from "@/errors";
-import { clearTokens, getAccessToken, getRefreshToken, saveTokens } from "@/storage";
+import { clearTokens, getAccessToken, getPushNotificationToken, getRefreshToken, saveTokens } from "@/storage";
+import * as Device from "expo-device";
+import { Platform } from "react-native";
+import { expo } from "../app.json";
+
+function parseDeviceType(deviceType: Device.DeviceType | null) {
+  switch (deviceType) {
+    case Device.DeviceType.PHONE:
+      return "PHONE";
+    case Device.DeviceType.TABLET:
+      return "TABLET";
+    case Device.DeviceType.DESKTOP:
+      return "DESKTOP";
+    default:
+      return "UNKNOWN";
+  }
+}
 
 class CreateApiService {
   private baseUrl: string = process.env.EXPO_PUBLIC_API_URL!;
@@ -23,10 +39,15 @@ class CreateApiService {
       body: JSON.stringify({ username, password }),
     });
     await saveTokens(data.access_token, data.refresh_token);
+    await this.me();
     return data;
   }
 
   async logout() {
+    const pushNotificationToken = await getPushNotificationToken();
+    await this.post<User>("/session/logout", {
+      body: JSON.stringify({ pushNotificationToken }),
+    });
     await clearTokens();
   }
 
@@ -51,12 +72,39 @@ class CreateApiService {
   }
 
   async me(): Promise<User> {
-    return await this.get<User>("/session/me");
+    const pushNotificationToken = await getPushNotificationToken();
+    return await this.post<User>("/session/me", {
+      body: JSON.stringify({
+        platform: Platform.OS,
+        platformVersion: Platform.Version,
+        appVersion: expo.version,
+        runtimeVersion: expo.runtimeVersion,
+        appRevision: process.env.EXPO_PUBLIC_APP_REVISION || undefined,
+        deviceType: parseDeviceType(Device.deviceType) || undefined,
+        deviceName: Device.deviceName || undefined,
+        osName: Device.osName || undefined,
+        osVersion: Device.osVersion || undefined,
+        pushNotificationToken,
+      }),
+    });
   }
 
-  async getAllGroups(): Promise<Group[]> {
-    return await this.get<Group[]>("/group/all");
-  }
+  group = {
+    all: async (): Promise<Group[]> => {
+      return await this.get<Group[]>("/group/all");
+    },
+    details: async (groupId: number): Promise<any> => {
+      return await this.get<Group>(`/group/${groupId}`);
+    },
+    create: async (data: Omit<GroupCreateData, "id">): Promise<GroupCreateData> => {
+      return await this.post<GroupCreateData>("/group/create", { body: JSON.stringify(data) });
+    },
+    sendMessage: async (groupId: number, content: string, receiverId?: number): Promise<any> => {
+      return await this.post<any>(`/group/${groupId}/message`, {
+        body: JSON.stringify({ content, receiverId }),
+      });
+    },
+  };
 
   private async buildHeaders() {
     const token = await getAccessToken();
@@ -112,12 +160,15 @@ export const apiService = new CreateApiService();
 
 export type User = {
   id: number;
-  name: string;
+  firstName: string;
+  lastName: string;
   email: string;
+  createdAd: Date;
 };
 
 export type Group = {
   id: number;
+  userId: number;
   password: string;
   name: string;
   description: string | null;
@@ -127,28 +178,72 @@ export type Group = {
   ownerId: number;
   status: "OPEN" | "CLOSED" | "DRAWN";
   archivedAt: Date | null;
+  isConfirmed: boolean;
+  lastRead: Date | null;
+  createdAt: Date;
+  updatedAt: Date;
   isOwner: boolean;
-  isArchived: boolean;
+  lastMessageAt: Date | null;
   unreadCount: number;
-  messages: {
+  myAssignedUserId: number | null;
+  assignedOfUserId: number | undefined;
+  myMemberId: number;
+  lastUpdate: Date;
+  members: {
     id: number;
-    senderId: number;
-    receiverId: number | null;
-    content: string;
-    createdAt: Date;
-  }[];
-  unreadMessages: {
-    id: number;
-    senderId: number;
-    receiverId: number | null;
-    content: string;
-    createdAt: Date;
+    userId: number;
+    firstName: string | null;
+    lastName: string | null;
+    isConfirmed: boolean;
+    wishlistCount: number;
   }[];
   lastMessage: {
     id: number;
-    senderId: number;
-    receiverId: number | null;
+    sender: string;
     content: string;
     createdAt: Date;
+    isMine: boolean;
   } | null;
+};
+
+export type GroupDetail = Group & {
+  groupMessages: {
+    id: number;
+    sender: string;
+    content: string;
+    createdAt: Date;
+    isMine: boolean;
+  }[];
+  messagesAsGiftSender: {
+    id: number;
+    sender: string;
+    content: string;
+    createdAt: Date;
+    isMine: boolean;
+  }[];
+  messagesAsGiftReceiver: {
+    id: number;
+    sender: string;
+    content: string;
+    createdAt: Date;
+    isMine: boolean;
+  }[];
+};
+
+type Message = {
+  id: number;
+  senderId: number;
+  receiverId: number | null;
+  content: string;
+  createdAt: Date;
+};
+
+type GroupCreateData = {
+  id: number;
+  name: string;
+  password: string;
+  eventDate: Date;
+  description?: string;
+  additionalInfo?: string;
+  location?: string;
 };
