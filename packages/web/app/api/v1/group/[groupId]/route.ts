@@ -22,14 +22,16 @@ async function handleGet(request: NextRequest, ctx: RouteContext<"/api/v1/group/
   const myAssigned = group.members.find((member) => member.userId === membership?.assignedUserId)?.user;
   const assignedOf = group.members.find((member) => member.assignedUserId === user.id)?.user;
 
-  const messages = await prisma.message.findMany({
-    where: {
-      groupId: group.id,
-      OR: [{ receiverId: null }, { receiverId: user.id }, { senderId: user.id }],
-    },
-    include: { sender: { select: { firstName: true, lastName: true } }, receiver: { select: { firstName: true, lastName: true } } },
-    orderBy: { createdAt: "asc" },
-  });
+  const messages = (
+    await prisma.message.findMany({
+      where: {
+        groupId: group.id,
+        OR: [{ receiverId: null }, { receiverId: user.id }, { senderId: user.id }],
+      },
+      include: { sender: { select: { firstName: true, lastName: true } }, receiver: { select: { firstName: true, lastName: true } } },
+      orderBy: { createdAt: "asc" },
+    })
+  ).filter((message) => message.createdAt > (membership?.joinedAt || new Date()));
   const lastRead = membership?.lastReadAt ?? new Date(0);
   const unread = messages.filter((message) => message.createdAt > lastRead);
   const lastMessage = messages.length > 0 ? messages[messages.length - 1] : null;

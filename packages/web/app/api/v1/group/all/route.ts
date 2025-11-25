@@ -17,14 +17,16 @@ async function handleGet(request: NextRequest) {
   const result = await Promise.all(
     memberships.map(async (member) => {
       const lastRead = member.lastReadAt ?? new Date(0);
-      const messages = await prisma.message.findMany({
-        include: { sender: { select: { firstName: true, lastName: true } }, receiver: { select: { firstName: true, lastName: true } } },
-        where: {
-          groupId: member.groupId,
-          OR: [{ receiverId: null }, { receiverId: user.id }, { senderId: user.id }],
-        },
-        orderBy: { createdAt: "asc" },
-      });
+      const messages = (
+        await prisma.message.findMany({
+          include: { sender: { select: { firstName: true, lastName: true } }, receiver: { select: { firstName: true, lastName: true } } },
+          where: {
+            groupId: member.groupId,
+            OR: [{ receiverId: null }, { receiverId: user.id }, { senderId: user.id }],
+          },
+          orderBy: { createdAt: "asc" },
+        })
+      ).filter((message) => message.createdAt > (member?.joinedAt || new Date()));
       const group = member.group;
       const unread = messages.filter((message) => message.createdAt > lastRead);
       const lastMessage = messages.length > 0 ? messages[messages.length - 1] : null;
