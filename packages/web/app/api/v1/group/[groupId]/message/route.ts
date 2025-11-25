@@ -1,6 +1,7 @@
 import { BaseError } from "errors";
 import { withErrorHandling } from "errors/handler";
 import { prisma } from "lib/database";
+import { sendGroupMessageNotifications, sendInboxMessageNotifications } from "lib/notification";
 import { NextRequest, NextResponse } from "next/server";
 import z from "zod";
 import { getRequestUser } from "../../../session/authentication";
@@ -12,7 +13,7 @@ async function handlePost(request: NextRequest, ctx: RouteContext<"/api/v1/group
   const { content, receiverId } = body.parse(await request.json());
 
   const group = await prisma.group.findUnique({
-    include: { members: true },
+    include: { members: { include: { user: { select: { id: true, devices: true } } } } },
     where: { id: groupId },
   });
   if (!group || !group.members.some((member) => member.userId === user?.id)) {
@@ -27,6 +28,23 @@ async function handlePost(request: NextRequest, ctx: RouteContext<"/api/v1/group
     },
   });
 
+  if (!receiverId) {
+    sendGroupMessageNotifications(
+      group,
+      group.members
+        .filter((m) => m.userId !== user?.id)
+        .map((m) => m.user.devices)
+        .flat(),
+    );
+  } else {
+    sendInboxMessageNotifications(
+      group,
+      group.members
+        .filter((m) => m.userId === receiverId)
+        .map((m) => m.user.devices)
+        .flat(),
+    );
+  }
   return NextResponse.json({
     message,
   });

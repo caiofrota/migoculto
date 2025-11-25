@@ -76,6 +76,7 @@ model Member {
   user         User  @relation("UserMembership", fields: [userId], references: [id])
   assignedUser User? @relation("AssignedUser", fields: [assignedUserId], references: [id])
 
+  @@unique([groupId, userId], name: "groupAndUser", map: "member_group_user_uk1")
   @@index([groupId], name: "member_group_idx")
   @@index([userId], name: "member_user_idx")
   @@index([assignedUserId], name: "member_assigned_user_idx")

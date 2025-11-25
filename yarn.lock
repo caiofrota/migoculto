@@ -5241,6 +5241,11 @@ env-editor@^0.4.1:
   resolved "https://registry.yarnpkg.com/env-editor/-/env-editor-0.4.2.tgz#4e76568d0bd8f5c2b6d314a9412c8fe9aa3ae861"
   integrity sha512-ObFo8v4rQJAE59M69QzwloxPZtd33TpYEIjtKD1rrFDcM1Gd7IkDxEBU+HriziN6HSHQnBJi8Dmy+JWkav5HKA==
 
+err-code@^2.0.2:
+  version "2.0.3"
+  resolved "https://registry.yarnpkg.com/err-code/-/err-code-2.0.3.tgz#23c2f3b756ffdfc608d30e27c9a941024807e7f9"
+  integrity sha512-2bmlRpNKBxT/CRmPOlyISQpNj+qSeYvcym/uT0Jx2bMOlKLtSy1ZmLuVxSEKKyor/N5yhvp/ZiG1oE3DEYMSFA==
+
 error-stack-parser@^2.0.6:
   version "2.1.4"
   resolved "https://registry.yarnpkg.com/error-stack-parser/-/error-stack-parser-2.1.4.tgz#229cb01cdbfa84440bfa91876285b94680188286"
@@ -5847,6 +5852,15 @@ expo-secure-store@~15.0.7:
   version "15.0.7"
   resolved "https://registry.yarnpkg.com/expo-secure-store/-/expo-secure-store-15.0.7.tgz#f74f928029889b8a32c0eafc2a214abee1e8b71e"
   integrity sha512-9q7+G1Zxr5P6J5NRIlm86KulvmYwc6UnQlYPjQLDu1drDnerz6AT6l884dPu29HgtDTn4rR0heYeeGFhMKM7/Q==
+
+expo-server-sdk@^4.0.0:
+  version "4.0.0"
+  resolved "https://registry.yarnpkg.com/expo-server-sdk/-/expo-server-sdk-4.0.0.tgz#312dd6b441c8dd86b7d6c561a091f0a5976ecf02"
+  integrity sha512-zi83XtG2pqyP3gyn1JIRYkydo2i6HU3CYaWo/VvhZG/F29U+QIDv6LBEUsWf4ddZlVE7c9WN1N8Be49rHgO8OQ==
+  dependencies:
+    node-fetch "^2.6.0"
+    promise-limit "^2.7.0"
+    promise-retry "^2.0.1"
 
 expo-server@^1.0.4:
   version "1.0.4"
@@ -7948,7 +7962,7 @@ node-fetch-native@^1.6.6:
   resolved "https://registry.yarnpkg.com/node-fetch-native/-/node-fetch-native-1.6.7.tgz#9d09ca63066cc48423211ed4caf5d70075d76a71"
   integrity sha512-g9yhqoedzIUm0nTnTqAQvueMPVOuIY16bqgAJJC8XOOubYFNwz6IER9qs0Gq2Xd0+CecCKFjtdDTMA4u4xG06Q==
 
-node-fetch@^2.7.0:
+node-fetch@^2.6.0, node-fetch@^2.7.0:
   version "2.7.0"
   resolved "https://registry.yarnpkg.com/node-fetch/-/node-fetch-2.7.0.tgz#d0f0fa6e3e2dc1d27efcd8ad99d550bda94d187d"
   integrity sha512-c4FRfUm/dbcWZ7U+1Wq0AwCyFL+3nt2bEw05wfxSz+DWpWsitgmSgYmy2dQdWyKC1694ELPqMs/YzUSNozLt8A==
@@ -8428,6 +8442,19 @@ progress@^2.0.3:
   version "2.0.3"
   resolved "https://registry.yarnpkg.com/progress/-/progress-2.0.3.tgz#7e8cf8d8f5b8f239c1bc68beb4eb78567d572ef8"
   integrity sha512-7PiHtLll5LdnKIMw100I+8xJXR5gW2QwWYkT6iJva0bXitZKa/XMrSbdmg3r2Xnaidz9Qumd0VPaMrZlF9V9sA==
+
+promise-limit@^2.7.0:
+  version "2.7.0"
+  resolved "https://registry.yarnpkg.com/promise-limit/-/promise-limit-2.7.0.tgz#eb5737c33342a030eaeaecea9b3d3a93cb592b26"
+  integrity sha512-7nJ6v5lnJsXwGprnGXga4wx6d1POjvi5Qmf1ivTRxTjH4Z/9Czja/UCMLVmB9N93GeWOU93XaFaEt6jbuoagNw==
+
+promise-retry@^2.0.1:
+  version "2.0.1"
+  resolved "https://registry.yarnpkg.com/promise-retry/-/promise-retry-2.0.1.tgz#ff747a13620ab57ba688f5fc67855410c370da22"
+  integrity sha512-y+WKFlBR8BGXnsNlIHFGPZmyDf3DFMoLhaflAnyZgV6rG6xu+JwesTo2Q9R6XwYmtmwAFCkAk3e35jEdoeh/3g==
+  dependencies:
+    err-code "^2.0.2"
+    retry "^0.12.0"
 
 promise@^7.1.1:
   version "7.3.1"

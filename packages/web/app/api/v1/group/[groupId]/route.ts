@@ -114,13 +114,13 @@ async function handleGet(request: NextRequest, ctx: RouteContext<"/api/v1/group/
       )
       .map((msg) => ({
         id: msg.id,
-        senderName:
+        sender:
           msg.senderId === user.id
             ? "Eu"
             : group.status === "CLOSED"
               ? assignedOf?.firstName + " " + assignedOf?.lastName
               : "Quem tirou você",
-        receiverName:
+        receiver:
           msg.receiverId === user.id
             ? "Eu"
             : group.status === "CLOSED"
