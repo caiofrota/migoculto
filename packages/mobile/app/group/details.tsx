@@ -21,7 +21,7 @@ export default function GroupChatScreen() {
 
   const [sending, setSending] = useState(false);
 
-  const { data } = useGroupData(groupId);
+  const { data, markAsRead } = useGroupData(groupId);
   const [activeTab, setActiveTab] = useState<"general" | "assignedOf" | "myAssigned">("general");
   const [messages, setMessages] = useState<GroupDetail["groupMessages"]>([]);
   const [myAssignedMessages, setMyAssignedMessages] = useState<GroupDetail["messagesAsGiftSender"]>([]);
@@ -52,16 +52,19 @@ export default function GroupChatScreen() {
         if (receiverId === data?.myAssignedUserId) {
           setMyAssignedMessages((prev) => [
             ...prev,
-            { id: Math.random() * -1, content: text, createdAt: new Date(), isMine: true, sender: "Você" },
+            { id: Math.random() * -1, content: text, createdAt: new Date().toISOString(), isMine: true, sender: "Você" },
           ]);
         } else if (receiverId === data?.assignedOfUserId) {
           setAssignedOfMessages((prev) => [
             ...prev,
-            { id: Math.random() * -1, content: text, createdAt: new Date(), isMine: true, sender: "Você" },
+            { id: Math.random() * -1, content: text, createdAt: new Date().toISOString(), isMine: true, sender: "Você" },
           ]);
         }
       } else {
-        setMessages((prev) => [...prev, { id: Math.random() * -1, content: text, createdAt: new Date(), isMine: true, sender: "Você" }]);
+        setMessages((prev) => [
+          ...prev,
+          { id: Math.random() * -1, content: text, createdAt: new Date().toISOString(), isMine: true, sender: "Você" },
+        ]);
       }
       await apiService.group.sendMessage(numericGroupId, text, receiverId);
     } catch (err) {
@@ -77,8 +80,9 @@ export default function GroupChatScreen() {
       setMessages(data.groupMessages || []);
       setMyAssignedMessages(data.messagesAsGiftSender || []);
       setAssignedOfMessages(data.messagesAsGiftReceiver || []);
+      markAsRead();
     }
-  }, [data]);
+  }, [data, markAsRead, numericGroupId]);
 
   const handleAddWishlistItem = async (payload: Omit<WishlistItem, "id">) => {
     try {
@@ -151,15 +155,12 @@ export default function GroupChatScreen() {
         </View>
 
         <View style={styles.banner}>
-          {data.myAssignedUserId ? (
-            <Text style={styles.bannerText}>
-              Você já tirou o seu amigo secreto!{"\n"}
-              Veja as listas ou envie uma mensagem privada pelo menu.
-            </Text>
-          ) : data.status === "DRAWN" ? (
-            <Text style={styles.bannerText}>Sorteio realizado. Aguarde para ver quem você tirou.</Text>
+          {activeTab === "myAssigned" ? (
+            <Text style={styles.bannerText}>Só você e quem você tirou podem ver as mensagens aqui.</Text>
+          ) : activeTab === "assignedOf" ? (
+            <Text style={styles.bannerText}>Só você e quem tirou você podem ver as mensagens aqui.</Text>
           ) : (
-            <Text style={styles.bannerText}>Mensagens aqui são para o grupo todo. Use o menu para ver mais opções.</Text>
+            <Text style={styles.bannerText}>As mensagens aqui são públicas e todos do grupo podem ver.</Text>
           )}
         </View>
 
@@ -318,6 +319,7 @@ const styles = StyleSheet.create({
   },
   bannerText: {
     fontSize: 13,
+    textAlign: "center",
     color: "#FFE6D5",
   },
   messagesContent: {

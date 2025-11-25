@@ -104,6 +104,11 @@ class CreateApiService {
         body: JSON.stringify({ content, receiverId }),
       });
     },
+    read: async (groupId: number): Promise<any> => {
+      return await this.post<any>(`/group/${groupId}/read`, {
+        body: JSON.stringify({ groupId }),
+      });
+    },
   };
 
   private async buildHeaders() {
@@ -163,7 +168,7 @@ export type User = {
   firstName: string;
   lastName: string;
   email: string;
-  createdAd: Date;
+  createdAd: string;
 };
 
 export type Group = {
@@ -172,23 +177,23 @@ export type Group = {
   password: string;
   name: string;
   description: string | null;
-  eventDate: Date;
+  eventDate: string;
   additionalInfo: string | null;
   location: string | null;
   ownerId: number;
   status: "OPEN" | "CLOSED" | "DRAWN";
-  archivedAt: Date | null;
+  archivedAt: string | null;
   isConfirmed: boolean;
-  lastRead: Date | null;
-  createdAt: Date;
-  updatedAt: Date;
+  lastReadAt: string | null;
+  createdAt: string;
+  updatedAt: string;
   isOwner: boolean;
-  lastMessageAt: Date | null;
+  lastMessageAt: string | null;
   unreadCount: number;
   myAssignedUserId: number | null;
   assignedOfUserId: number | undefined;
   myMemberId: number;
-  lastUpdate: Date;
+  lastUpdate: string;
   members: {
     id: number;
     userId: number;
@@ -201,7 +206,7 @@ export type Group = {
     id: number;
     sender: string;
     content: string;
-    createdAt: Date;
+    createdAt: string;
     isMine: boolean;
   } | null;
 };
@@ -211,38 +216,30 @@ export type GroupDetail = Group & {
     id: number;
     sender: string;
     content: string;
-    createdAt: Date;
+    createdAt: string;
     isMine: boolean;
   }[];
   messagesAsGiftSender: {
     id: number;
     sender: string;
     content: string;
-    createdAt: Date;
+    createdAt: string;
     isMine: boolean;
   }[];
   messagesAsGiftReceiver: {
     id: number;
     sender: string;
     content: string;
-    createdAt: Date;
+    createdAt: string;
     isMine: boolean;
   }[];
-};
-
-type Message = {
-  id: number;
-  senderId: number;
-  receiverId: number | null;
-  content: string;
-  createdAt: Date;
 };
 
 type GroupCreateData = {
   id: number;
   name: string;
   password: string;
-  eventDate: Date;
+  eventDate: string;
   description?: string;
   additionalInfo?: string;
   location?: string;

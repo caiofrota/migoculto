@@ -42,6 +42,7 @@ export function AppProvider({ children }: GroupsCacheProviderProps) {
 
   useEffect(() => {
     (async () => {
+      //AsyncStorage.clear();
       const currentUser = await AsyncStorage.getItem(`${STORAGE_USER_PREFIX}`);
       if (currentUser) setUser(JSON.parse(currentUser));
       const storedGroups = await AsyncStorage.getItem(`${STORAGE_GROUP_PREFIX}all`);
@@ -171,7 +172,6 @@ export function AppProvider({ children }: GroupsCacheProviderProps) {
           }
         }),
       );
-      console.log(groups);
       setGroups(groups.sort((a, b) => new Date(b.lastUpdate).getTime() - new Date(a.lastUpdate).getTime()));
     } catch (e) {
       console.warn("Erro ao buscar grupos no backend:", e);
@@ -214,8 +214,19 @@ export function useGroups() {
 }
 
 export function useGroupData(groupId: string | number) {
-  const { groups, refreshGroup } = useAppContext();
+  const { groups, setGroup, refreshGroup } = useAppContext();
   const [data, setData] = useState<GroupDetail | null>(null);
+
+  async function markAsRead() {
+    if (new Date(data?.lastReadAt ?? 0).getTime() < new Date(data?.lastMessageAt ?? 0).getTime()) {
+      setGroup(groupId, {
+        ...data!,
+        unreadCount: 0,
+        lastReadAt: new Date().toISOString(),
+      });
+      await apiService.group.read(Number(groupId));
+    }
+  }
 
   useEffect(() => {
     (async () => {
@@ -233,6 +244,7 @@ export function useGroupData(groupId: string | number) {
 
   return {
     data,
+    markAsRead,
     refresh,
   };
 }

@@ -4,7 +4,7 @@ import { StyleSheet, Text, View } from "react-native";
 export interface ChatMessage {
   id: number;
   content: string;
-  createdAt: Date;
+  createdAt: string;
   isMine: boolean;
   sender: string;
   isPrivate?: boolean;
@@ -34,9 +34,6 @@ export const ChatMessageBubble: React.FC<Props> = ({ message }) => {
             {message.sender}
           </Text>
         )}
-
-        {message.isPrivate && <Text style={styles.privateTag}>Mensagem privada</Text>}
-
         <Text style={textStyle}>{message.content}</Text>
 
         <View style={styles.meta}>
@@ -66,11 +63,11 @@ const styles = StyleSheet.create({
     paddingVertical: 6,
   },
   bubbleMine: {
-    backgroundColor: "#2E7D32", // verde MigOculto
+    backgroundColor: "#2E7D32",
     borderBottomRightRadius: 4,
   },
   bubbleOther: {
-    backgroundColor: "rgba(255,255,255,0.06)",
+    backgroundColor: "rgba(255,255,255,0.25)",
     borderBottomLeftRadius: 4,
   },
   text: {
@@ -86,16 +83,6 @@ const styles = StyleSheet.create({
     fontSize: 13,
     fontWeight: "600",
     color: "#FCE9B3",
-    marginBottom: 2,
-  },
-  privateTag: {
-    fontSize: 11,
-    color: "#FFE6D5",
-    backgroundColor: "rgba(0,0,0,0.25)",
-    alignSelf: "flex-start",
-    paddingHorizontal: 6,
-    paddingVertical: 2,
-    borderRadius: 999,
     marginBottom: 2,
   },
   meta: {
