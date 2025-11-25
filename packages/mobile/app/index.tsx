@@ -1,24 +1,23 @@
 import { AddGroupActionSheet } from "@/components/add-group-action-sheet";
 import { JoinGroupModal } from "@/components/join-group-modal";
-import { useAuth } from "@/components/provider";
+import { useAuth, useGroups } from "@/components/provider";
 import { QrScannerModal } from "@/components/qr-scanner-modal";
-import { apiService, Group } from "@/services/api";
+import { Group } from "@/services/api";
 import { Ionicons } from "@expo/vector-icons";
+import { useRouter } from "expo-router";
 import React, { useEffect, useMemo, useState } from "react";
 import { FlatList, StatusBar, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 type Filter = "all" | "owner" | "participant";
 
-interface GroupsScreenProps {
-  onOpenGroup?: (groupId: number) => void;
-}
-
-export const GroupsScreen: React.FC<GroupsScreenProps> = ({ onOpenGroup }) => {
+export const GroupsScreen = () => {
   const { logout } = useAuth();
+  const router = useRouter();
   const [filter, setFilter] = useState<Filter>("all");
   const [showArchived, setShowArchived] = useState<boolean>(false);
-  const [groups, setGroups] = useState<Group[]>([]);
+
+  const { groups } = useGroups();
 
   const [isActionSheetOpen, setIsActionSheetOpen] = useState(false);
   const [isJoinModalOpen, setIsJoinModalOpen] = useState(false);
@@ -32,32 +31,28 @@ export const GroupsScreen: React.FC<GroupsScreenProps> = ({ onOpenGroup }) => {
   };
 
   const { activeGroups, archivedGroups } = useMemo(() => {
-    const active = groups.filter((g) => !g.isArchived);
-    const archived = groups.filter((g) => g.isArchived);
+    const active = groups?.filter((g) => !g.archivedAt);
+    const archived = groups?.filter((g) => !!g.archivedAt);
     return { activeGroups: active, archivedGroups: archived };
   }, [groups]);
 
   const filteredActiveGroups = useMemo(() => {
     switch (filter) {
       case "owner":
-        return activeGroups.filter((g) => g.isOwner);
+        return activeGroups?.filter((g) => g.isOwner);
       case "participant":
-        return activeGroups.filter((g) => !g.isOwner);
+        return activeGroups?.filter((g) => !g.isOwner);
       default:
         return activeGroups;
     }
   }, [activeGroups, filter]);
 
   const handleOpenGroup = (id: number) => {
-    if (onOpenGroup) {
-      onOpenGroup(id);
-    } else {
-      console.log("Open group:", id);
-    }
+    router.push(`/group/details?groupId=${id}`);
   };
 
   const handleCreateGroup = () => {
-    //router.push("/create-group");
+    router.push("/create-group");
   };
 
   const handleSelectCreate = () => {
@@ -87,8 +82,8 @@ export const GroupsScreen: React.FC<GroupsScreenProps> = ({ onOpenGroup }) => {
       setJoinGroupCode("");
       setJoinPassword("");
 
-      const updatedGroups = await apiService.getAllGroups();
-      setGroups(updatedGroups);
+      //const updatedGroups = await apiService.group.all();
+      //setGroups(updatedGroups);
     } catch (error) {
       console.error("Erro ao entrar no grupo:", error);
     }
@@ -103,9 +98,8 @@ export const GroupsScreen: React.FC<GroupsScreenProps> = ({ onOpenGroup }) => {
   useEffect(() => {
     const fetchGroups = async () => {
       try {
-        const groups = await apiService.getAllGroups();
-        setGroups(groups);
-        console.log(groups);
+        //const groups = await apiService.group.all();
+        //setGroups(groups);
       } catch (error) {
         console.error("Error fetching groups:", error);
       }
@@ -184,7 +178,7 @@ export const GroupsScreen: React.FC<GroupsScreenProps> = ({ onOpenGroup }) => {
         data={filteredActiveGroups}
         keyExtractor={(item) => String(item.id) + Math.random().toString()}
         renderItem={renderGroupItem}
-        contentContainerStyle={[styles.listContent, filteredActiveGroups.length === 0 && styles.emptyListContent]}
+        contentContainerStyle={[styles.listContent, filteredActiveGroups?.length === 0 && styles.emptyListContent]}
         ListEmptyComponent={
           <View style={styles.emptyState}>
             <Ionicons name="sparkles-outline" size={40} color="#FFB4A2" />
@@ -194,13 +188,13 @@ export const GroupsScreen: React.FC<GroupsScreenProps> = ({ onOpenGroup }) => {
         }
       />
 
-      {archivedGroups.length > 0 && (
+      {(archivedGroups ?? []).length > 0 && (
         <View style={styles.archivedSection}>
           <TouchableOpacity style={styles.archivedHeader} onPress={() => setShowArchived((prev) => !prev)} activeOpacity={0.8}>
             <View style={styles.archivedHeaderLeft}>
               <Ionicons name={showArchived ? "chevron-down" : "chevron-forward"} size={18} color="#FFE6D5" />
               <Text style={styles.archivedTitle}>Arquivados</Text>
-              <Text style={styles.archivedCount}>({archivedGroups.length})</Text>
+              <Text style={styles.archivedCount}>({(archivedGroups ?? []).length})</Text>
             </View>
           </TouchableOpacity>
           {showArchived && (
@@ -224,6 +218,7 @@ export const GroupsScreen: React.FC<GroupsScreenProps> = ({ onOpenGroup }) => {
         onJoinExisting={handleSelectJoin}
         onScanCode={handleSelectScan}
       />
+
       <JoinGroupModal
         visible={isJoinModalOpen}
         groupCode={joinGroupCode}
@@ -233,6 +228,7 @@ export const GroupsScreen: React.FC<GroupsScreenProps> = ({ onOpenGroup }) => {
         onConfirm={handleConfirmJoin}
         onClose={() => setIsJoinModalOpen(false)}
       />
+
       <QrScannerModal visible={isScannerOpen} onClose={() => setIsScannerOpen(false)} onCodeScanned={handleCodeScanned} />
     </SafeAreaView>
   );
@@ -272,12 +268,12 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
   },
   appTitle: {
-    fontSize: 30,
+    fontSize: 24,
     fontWeight: "700",
     color: "#FFFFFF",
   },
   appSubtitle: {
-    fontSize: 20,
+    fontSize: 16,
     color: "#CBCBD6",
     marginTop: 2,
   },
@@ -296,8 +292,8 @@ const styles = StyleSheet.create({
     backgroundColor: "rgba(15, 18, 28, 0.9)",
   },
   filterPillSelected: {
-    backgroundColor: "#E53935",
-    borderColor: "#E53935",
+    backgroundColor: "#2E7D32",
+    borderColor: "#2E7D32",
   },
   filterPillText: {
     fontSize: 16,
@@ -350,7 +346,7 @@ const styles = StyleSheet.create({
   },
   groupName: {
     flex: 1,
-    fontSize: 20,
+    fontSize: 18,
     fontWeight: "600",
     color: "#FFFFFF",
   },
@@ -372,7 +368,7 @@ const styles = StyleSheet.create({
     marginTop: 2,
   },
   lastMessage: {
-    fontSize: 18,
+    fontSize: 16,
     color: "#B9B9D5",
   },
   rowMeta: {
@@ -435,12 +431,12 @@ const styles = StyleSheet.create({
     position: "absolute",
     right: 18,
     bottom: 24,
-    width: 56,
-    height: 56,
+    width: 48,
+    height: 48,
     borderRadius: 28,
     alignItems: "center",
     justifyContent: "center",
-    backgroundColor: "#E53935",
+    backgroundColor: "#2E7D32",
     elevation: 4,
     shadowColor: "#000",
     shadowOpacity: 0.3,
