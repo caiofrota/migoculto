@@ -109,6 +109,11 @@ class CreateApiService {
         body: JSON.stringify({ groupId }),
       });
     },
+    join: async (groupId: number, password: string): Promise<any> => {
+      return await this.post<any>(`/group/join`, {
+        body: JSON.stringify({ groupId, password }),
+      });
+    },
   };
 
   private async buildHeaders() {
