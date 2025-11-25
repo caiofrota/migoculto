@@ -30,6 +30,7 @@ model User {
   wishlists        Wishlist[]
   receivedMessages Message[]  @relation("ReceivedMessages")
   sentMessages     Message[]  @relation("SentMessages")
+  devices          Device[]
 
   @@index([email], name: "user_email_idx")
   @@index([role], name: "user_role_idx")
@@ -117,6 +118,35 @@ model Message {
   @@index([senderId], name: "message_sender_idx")
   @@index([receiverId], name: "message_receiver_idx")
   @@map("message")
+}
+
+model Device {
+  id                    Int            @id @default(autoincrement()) @map("id")
+  userId                Int?           @map("user_id")
+  platform              String         @map("platform") @db.VarChar(100)
+  platformVersion       String         @map("platform_version") @db.VarChar(100)
+  appVersion            String         @map("app_version") @db.VarChar(100)
+  appRevision           Int            @default(0) @map("app_revision")
+  runtimeVersion        String?        @map("runtime_version") @db.VarChar(100)
+  pushNotificationToken String?        @unique @map("push_notification_token") @db.VarChar(500)
+  deviceType            EnumDeviceType @default(UNKNOWN) @map("device_type")
+  deviceName            String?        @map("device_name") @db.VarChar(100)
+  osName                String?        @map("os_name") @db.VarChar(100)
+  osVersion             String?        @map("os_version") @db.VarChar(100)
+  language              String?        @map("language") @db.VarChar(20)
+  region                String?        @map("region") @db.VarChar(20)
+  createdAt             DateTime       @default(now()) @map("created_at")
+  updatedAt             DateTime       @default(now()) @map("updated_at")
+  user                  User?          @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("device")
+}
+
+enum EnumDeviceType {
+  UNKNOWN
+  PHONE
+  TABLET
+  DESKTOP
 }
 
 enum RoleEnum {
