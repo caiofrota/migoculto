@@ -4,7 +4,7 @@ import { apiService, Group, GroupDetail, User } from "@/services/api";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { Text } from "@react-navigation/elements";
 import * as Notifications from "expo-notifications";
-import React, { createContext, ReactNode, useContext, useEffect, useRef, useState } from "react";
+import React, { createContext, ReactNode, useCallback, useContext, useEffect, useRef, useState } from "react";
 import { Alert, Linking } from "react-native";
 import { getAccessToken, setPushNotificationToken } from "../storage";
 
@@ -40,48 +40,7 @@ export function AppProvider({ children }: GroupsCacheProviderProps) {
   const responseListener = useRef<Notifications.EventSubscription | null>(null);
   const [, setNotification] = useState<Notifications.Notification | boolean>(false);
 
-  useEffect(() => {
-    (async () => {
-      //AsyncStorage.clear();
-      const currentUser = await AsyncStorage.getItem(`${STORAGE_USER_PREFIX}`);
-      if (currentUser) setUser(JSON.parse(currentUser));
-      const storedGroups = await AsyncStorage.getItem(`${STORAGE_GROUP_PREFIX}all`);
-      if (storedGroups) setGroups(JSON.parse(storedGroups));
-      setShowSplash(false);
-      const token = await getAccessToken();
-      if (token) {
-        try {
-          await refreshUser();
-          await refreshGroups();
-          await initializePushNotifications();
-        } catch {
-          // TODO
-        }
-      } else {
-        clearData();
-      }
-    })();
-  }, []);
-
-  useEffect(() => {
-    if (user) {
-      AsyncStorage.setItem(`${STORAGE_USER_PREFIX}`, JSON.stringify(user));
-    }
-  }, [user]);
-
-  useEffect(() => {
-    if (groups) {
-      AsyncStorage.setItem(`${STORAGE_GROUP_PREFIX}all`, JSON.stringify(groups));
-    }
-  }, [groups]);
-
-  async function clearData() {
-    setUser(null);
-    setGroups(null);
-    await AsyncStorage.removeItem(`${STORAGE_USER_PREFIX}`);
-  }
-
-  async function refreshUser() {
+  const refreshUser = useCallback(async () => {
     try {
       const user = await apiService.me();
       setUser(user);
@@ -90,9 +49,20 @@ export function AppProvider({ children }: GroupsCacheProviderProps) {
         clearData();
       }
     }
-  }
+  }, []);
 
-  async function initializePushNotifications() {
+  const refreshGroup = useCallback(async (groupId: string | number): Promise<GroupDetail | null> => {
+    try {
+      const res = await apiService.group.details(Number(groupId));
+      await setGroup(groupId, res);
+      return res;
+    } catch (e) {
+      console.warn("Erro ao buscar grupo no backend:", e);
+      return null;
+    }
+  }, []);
+
+  const initializePushNotifications = useCallback(async () => {
     const { status } = await Notifications.requestPermissionsAsync();
     if (status === "denied" && Math.random() < 0.05) {
       Alert.alert(
@@ -120,6 +90,47 @@ export function AppProvider({ children }: GroupsCacheProviderProps) {
       if (notificationListener.current) notificationListener.current.remove();
       if (responseListener.current) responseListener.current.remove();
     };
+  }, [refreshGroup]);
+
+  useEffect(() => {
+    (async () => {
+      //AsyncStorage.clear();
+      const currentUser = await AsyncStorage.getItem(`${STORAGE_USER_PREFIX}`);
+      if (currentUser) setUser(JSON.parse(currentUser));
+      const storedGroups = await AsyncStorage.getItem(`${STORAGE_GROUP_PREFIX}all`);
+      if (storedGroups) setGroups(JSON.parse(storedGroups));
+      setShowSplash(false);
+      const token = await getAccessToken();
+      if (token) {
+        try {
+          await refreshUser();
+          await refreshGroups();
+          await initializePushNotifications();
+        } catch {
+          // TODO
+        }
+      } else {
+        clearData();
+      }
+    })();
+  }, [initializePushNotifications, refreshUser]);
+
+  useEffect(() => {
+    if (user) {
+      AsyncStorage.setItem(`${STORAGE_USER_PREFIX}`, JSON.stringify(user));
+    }
+  }, [user]);
+
+  useEffect(() => {
+    if (groups) {
+      AsyncStorage.setItem(`${STORAGE_GROUP_PREFIX}all`, JSON.stringify(groups));
+    }
+  }, [groups]);
+
+  async function clearData() {
+    setUser(null);
+    setGroups(null);
+    await AsyncStorage.removeItem(`${STORAGE_USER_PREFIX}`);
   }
 
   async function login(email: string, password: string) {
@@ -175,17 +186,6 @@ export function AppProvider({ children }: GroupsCacheProviderProps) {
       setGroups(groups.sort((a, b) => new Date(b.lastUpdate).getTime() - new Date(a.lastUpdate).getTime()));
     } catch (e) {
       console.warn("Erro ao buscar grupos no backend:", e);
-    }
-  }
-
-  async function refreshGroup(groupId: string | number): Promise<GroupDetail | null> {
-    try {
-      const res = await apiService.group.details(Number(groupId));
-      await setGroup(groupId, res);
-      return res;
-    } catch (e) {
-      console.warn("Erro ao buscar grupo no backend:", e);
-      return null;
     }
   }
 
