@@ -20,3 +20,11 @@ export async function clearTokens() {
   await SecureStore.deleteItemAsync(ACCESS_TOKEN_KEY);
   await SecureStore.deleteItemAsync(REFRESH_TOKEN_KEY);
 }
+
+export function getPushNotificationToken() {
+  return SecureStore.getItemAsync("pushNotificationToken");
+}
+
+export async function setPushNotificationToken(token: string | undefined) {
+  if (token) await SecureStore.setItemAsync("pushNotificationToken", token);
+}
