@@ -217,7 +217,6 @@ export function useGroupData(groupId: string | number) {
   const { setGroup, refreshGroup } = useAppContext();
   const [data, _setData] = useState<GroupDetail | null>(null);
 
-  // 1) Carrega o detalhe do grupo do AsyncStorage só pro estado local
   useEffect(() => {
     let cancelled = false;
 
@@ -233,7 +232,6 @@ export function useGroupData(groupId: string | number) {
     };
   }, [groupId]);
 
-  // 2) Função helper: atualiza `data` **e** persiste no provider/AsyncStorage
   type Updater = (prev: GroupDetail) => GroupDetail;
 
   const setData = useCallback(
@@ -243,8 +241,8 @@ export function useGroupData(groupId: string | number) {
 
         const next = updater(prev);
 
-        // IMPORTANTE: agenda a atualização do provider para o PRÓXIMO TICK,
-        // nunca durante o render atual.
+        // Important: Schedule the provider update for the NEXT TICK,
+        // never during the current render.
         setTimeout(() => {
           setGroup(groupId, next).catch((err) => {
             console.warn("Erro ao salvar grupo no provider:", err);
@@ -257,7 +255,6 @@ export function useGroupData(groupId: string | number) {
     [groupId, setGroup],
   );
 
-  // 3) markAsRead: usa updateAndPersist
   const markAsRead = useCallback(() => {
     setData((current) => {
       const lastRead = new Date(current.lastReadAt ?? 0).getTime();
@@ -279,11 +276,10 @@ export function useGroupData(groupId: string | number) {
     });
   }, [groupId, setData]);
 
-  // 4) refresh: busca do backend e atualiza estado local (o provider já é atualizado por refreshGroup)
   const refresh = useCallback(async () => {
     const fresh = await refreshGroup(groupId);
     if (fresh) {
-      _setData(fresh); // refreshGroup já chamou setGroup/faz cache
+      _setData(fresh);
     }
   }, [groupId, refreshGroup]);
 

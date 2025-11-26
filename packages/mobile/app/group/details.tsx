@@ -19,8 +19,6 @@ export default function GroupChatScreen() {
   const { groupId } = useLocalSearchParams<{ groupId: string }>();
   const numericGroupId = Number(groupId);
 
-  const [sending, setSending] = useState(false);
-
   const { data, setData, markAsRead } = useGroupData(groupId);
   const [activeTab, setActiveTab] = useState<"general" | "assignedOf" | "myAssigned">("general");
 
@@ -85,7 +83,7 @@ export default function GroupChatScreen() {
   useEffect(() => {
     if (!data?.lastMessageAt) return;
 
-    // impede rodar no mesmo frame da renderização
+    // avoid running on the same frame as rendering
     const timeout = setTimeout(() => {
       markAsRead();
     }, 120);
@@ -213,7 +211,6 @@ export default function GroupChatScreen() {
 
           <ChatInputBar
             onSend={handleSendInCurrentTab}
-            disabled={sending}
             placeholder={
               activeTab === "general"
                 ? "Mensagem para o grupo..."
