@@ -143,7 +143,7 @@ export const GroupsScreen = () => {
           </View>
           <View style={styles.rowSubtitleContainer}>
             <Text numberOfLines={1} style={styles.lastMessage}>
-              {item.lastMessage?.content || "Comece a conversa com o seu grupo!"}
+              {item.lastMessage?.content ? `${item.lastMessage.sender}: ${item.lastMessage.content}` : "Comece a conversa com o seu grupo!"}
             </Text>
           </View>
         </View>
