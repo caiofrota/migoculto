@@ -8,37 +8,35 @@ async function handlePost(req: NextRequest) {
   const user = await getRequestUser(req);
   const body = await req.json();
   const data = schema.parse(body);
-  if (user) {
-    await prisma.device.upsert({
-      where: { pushNotificationToken: data.pushNotificationToken },
-      create: {
-        userId: user.id,
-        pushNotificationToken: data.pushNotificationToken,
-        platform: data.platform,
-        appVersion: data.appVersion,
-        runtimeVersion: data.runtimeVersion,
-        appRevision: data.appRevision,
-        deviceType: data.deviceType as any,
-        deviceName: data.deviceName,
-        osName: data.osName,
-        osVersion: data.osVersion,
-        platformVersion: data.platformVersion,
-      },
-      update: {
-        userId: user.id,
-        platform: data.platform,
-        appVersion: data.appVersion,
-        runtimeVersion: data.runtimeVersion,
-        appRevision: data.appRevision,
-        deviceType: data.deviceType as any,
-        deviceName: data.deviceName,
-        osName: data.osName,
-        osVersion: data.osVersion,
-        platformVersion: data.platformVersion,
-        updatedAt: new Date(),
-      },
-    });
-  }
+  await prisma.device.upsert({
+    where: { pushNotificationToken: data.pushNotificationToken },
+    create: {
+      userId: user.id,
+      pushNotificationToken: data.pushNotificationToken,
+      platform: data.platform,
+      appVersion: data.appVersion,
+      runtimeVersion: data.runtimeVersion,
+      appRevision: data.appRevision,
+      deviceType: data.deviceType as any,
+      deviceName: data.deviceName,
+      osName: data.osName,
+      osVersion: data.osVersion,
+      platformVersion: data.platformVersion,
+    },
+    update: {
+      userId: user.id,
+      platform: data.platform,
+      appVersion: data.appVersion,
+      runtimeVersion: data.runtimeVersion,
+      appRevision: data.appRevision,
+      deviceType: data.deviceType as any,
+      deviceName: data.deviceName,
+      osName: data.osName,
+      osVersion: data.osVersion,
+      platformVersion: data.platformVersion,
+      updatedAt: new Date(),
+    },
+  });
   return NextResponse.json({
     id: user.id,
     firstName: user.firstName,

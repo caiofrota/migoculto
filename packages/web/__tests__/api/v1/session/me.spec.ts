@@ -1,5 +1,5 @@
 import prisma from "__tests__/__mocks__/prisma";
-import { GET } from "app/api/v1/session/me/route";
+import { POST } from "app/api/v1/session/me/route";
 import { NextRequest } from "next/server";
 import { beforeAll, describe, expect, it, vi } from "vitest";
 
@@ -54,18 +54,34 @@ describe("GET /api/v1/session/me", () => {
     prisma.user.findUnique.mockResolvedValueOnce(users[0]);
 
     const req = new NextRequest("http://localhost/api/v1/session/me", {
-      method: "GET",
+      method: "POST",
       headers: {
         Authorization: "Bearer valid_token",
       },
+      body: JSON.stringify({
+        platform: "web",
+        platformVersion: "1.0.0",
+        runtimeVersion: "1.0.0",
+        appVersion: "1.0.0",
+        appRevision: 1,
+        pushNotificationToken: "expo.push.token",
+        deviceType: "desktop",
+        deviceName: "User's PC",
+        osName: "Windows",
+        osVersion: "10",
+      }),
     });
 
-    const response = await GET(req);
+    const response = await POST(req);
 
     const data = await response.json();
     expect(response.status).toBe(200);
     expect(data).toEqual({
-      user: { ...JSON.parse(JSON.stringify(users[0])), password: undefined },
+      id: 1,
+      email: "user@test.com",
+      firstName: "Admin",
+      lastName: "User",
+      createdAt: expect.any(String),
     });
   });
 
@@ -81,7 +97,7 @@ describe("GET /api/v1/session/me", () => {
       },
     });
 
-    const response = await GET(req);
+    const response = await POST(req);
 
     expect(response.status).toBe(401);
     expect(await response.json()).toEqual({
@@ -104,7 +120,7 @@ describe("GET /api/v1/session/me", () => {
       },
     });
 
-    const response = await GET(req);
+    const response = await POST(req);
 
     expect(response.status).toBe(401);
     expect(await response.json()).toEqual({
@@ -127,7 +143,7 @@ describe("GET /api/v1/session/me", () => {
       },
     });
 
-    const response = await GET(req);
+    const response = await POST(req);
 
     expect(response.status).toBe(401);
     expect(await response.json()).toEqual({

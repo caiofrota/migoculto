@@ -1,7 +1,7 @@
+import { getRequestUser } from "app/api/v1/session/authentication";
 import { withErrorHandling } from "errors/handler";
 import { prisma } from "lib/database";
 import { NextRequest, NextResponse } from "next/server";
-import { getRequestUser } from "../../session/authentication";
 
 async function handleGet(request: NextRequest) {
   const user = await getRequestUser(request);

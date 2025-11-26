@@ -5,13 +5,11 @@ import { NextRequest } from "next/server";
 import { beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
 
 const hoisted = vi.hoisted(() => ({
-  mockedVerifyToken: vi.fn(),
+  requestUser: vi.fn().mockResolvedValue({ id: 1, isActive: true } as any),
 }));
 
-vi.mock("jose", () => ({
-  jwtVerify: () => {
-    return { payload: hoisted.mockedVerifyToken() };
-  },
+vi.mock("app/api/v1/session/authentication", async () => ({
+  getRequestUser: hoisted.requestUser,
 }));
 
 describe("GET /api/v1/group/all", () => {
@@ -33,6 +31,7 @@ describe("GET /api/v1/group/all", () => {
     location: "123 Family St, City, Country",
     status: "active",
     eventDate: new Date("2024-12-25T19:00:00.000Z"),
+    members: [],
   };
   const messages = [
     {
@@ -78,14 +77,13 @@ describe("GET /api/v1/group/all", () => {
   });
 
   it("should return all groups for the user", async () => {
-    hoisted.mockedVerifyToken.mockReturnValue({ userId: 1 });
     prisma.member.findMany.mockResolvedValueOnce([
       {
         ...membership,
         group,
       },
     ] as any);
-    prisma.message.findMany.mockResolvedValueOnce(messages as any);
+    prisma.message.findMany.mockResolvedValue(messages as any);
 
     const request = new NextRequest("http://localhost:3000/api/v1/group/all", {
       method: "GET",
@@ -96,11 +94,34 @@ describe("GET /api/v1/group/all", () => {
     expect(response.status).toBe(200);
 
     const responseData = await response.json();
-    expect(responseData).toHaveLength(1);
-    expect(responseData[0].name).toBe(group.name);
-    expect(responseData[0].unreadCount).toBe(2);
-    expect(responseData[0].messages).toHaveLength(4);
-    expect(responseData[0].unreadMessages).toHaveLength(2);
-    expect(responseData[0].lastMessage?.content).toBe("Looking forward to seeing you all!");
+    console.log(responseData);
+    expect(responseData).toEqual([
+      {
+        id: 1,
+        additionalInfo: "Some additional info about the family group",
+        description: "A group for family members",
+        eventDate: "2024-12-25T19:00:00.000Z",
+        isOwner: true,
+        lastMessageAt: "2024-11-30T15:00:00.000Z",
+        lastRead: "2024-11-30T13:00:00.000Z",
+        lastUpdate: "2024-11-30T15:00:00.000Z",
+        location: "123 Family St, City, Country",
+        members: [],
+        myMemberId: 1,
+        name: "Family Group",
+        ownerId: 1,
+        password: "family123",
+        status: "active",
+        unreadCount: 2,
+        userId: 1,
+        lastMessage: {
+          content: "Looking forward to seeing you all!",
+          createdAt: "2024-11-30T15:00:00.000Z",
+          id: 4,
+          isMine: true,
+          sender: "Eu",
+        },
+      },
+    ]);
   });
 });
