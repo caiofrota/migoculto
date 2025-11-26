@@ -30,6 +30,11 @@ async function getGroupAvailableMessages(request: NextRequest, ctx: RouteContext
     },
   });
 
+  await prisma.member.update({
+    where: { groupAndUser: { groupId: groupId, userId: user.id } },
+    data: { lastReadAt: new Date() },
+  });
+
   if (!receiverId) {
     sendGroupMessageNotifications(
       group,
