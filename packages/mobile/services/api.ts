@@ -91,27 +91,27 @@ class CreateApiService {
 
   group = {
     all: async (): Promise<Group[]> => {
-      return await this.get<Group[]>("/group/all");
-    },
-    details: async (groupId: number): Promise<any> => {
-      return await this.get<Group>(`/group/${groupId}`);
+      return await this.get<Group[]>("/groups");
     },
     create: async (data: Omit<GroupCreateData, "id">): Promise<GroupCreateData> => {
-      return await this.post<GroupCreateData>("/group/create", { body: JSON.stringify(data) });
+      return await this.post<GroupCreateData>("/groups", { body: JSON.stringify(data) });
+    },
+    details: async (groupId: number): Promise<any> => {
+      return await this.get<Group>(`/groups/${groupId}`);
     },
     sendMessage: async (groupId: number, content: string, receiverId?: number): Promise<any> => {
-      return await this.post<any>(`/group/${groupId}/message`, {
+      return await this.post<any>(`/groups/${groupId}/message`, {
         body: JSON.stringify({ content, receiverId }),
       });
     },
-    read: async (groupId: number): Promise<any> => {
-      return await this.post<any>(`/group/${groupId}/read`, {
+    markAsRead: async (groupId: number): Promise<any> => {
+      return await this.post<any>(`/groups/${groupId}/mark-as-read`, {
         body: JSON.stringify({ groupId }),
       });
     },
     join: async (groupId: number, password: string): Promise<any> => {
-      return await this.post<any>(`/group/join`, {
-        body: JSON.stringify({ groupId, password }),
+      return await this.post<any>(`/groups/${groupId}/join`, {
+        body: JSON.stringify({ password }),
       });
     },
   };
