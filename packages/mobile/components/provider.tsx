@@ -214,36 +214,82 @@ export function useGroups() {
 }
 
 export function useGroupData(groupId: string | number) {
-  const { groups, setGroup, refreshGroup } = useAppContext();
-  const [data, setData] = useState<GroupDetail | null>(null);
+  const { setGroup, refreshGroup } = useAppContext();
+  const [data, _setData] = useState<GroupDetail | null>(null);
 
-  async function markAsRead() {
-    if (new Date(data?.lastReadAt ?? 0).getTime() < new Date(data?.lastMessageAt ?? 0).getTime()) {
-      setGroup(groupId, {
-        ...data!,
+  // 1) Carrega o detalhe do grupo do AsyncStorage só pro estado local
+  useEffect(() => {
+    let cancelled = false;
+
+    (async () => {
+      const stored = await AsyncStorage.getItem(`${STORAGE_GROUP_PREFIX}${groupId}`);
+      if (!cancelled && stored) {
+        _setData(JSON.parse(stored));
+      }
+    })();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [groupId]);
+
+  // 2) Função helper: atualiza `data` **e** persiste no provider/AsyncStorage
+  type Updater = (prev: GroupDetail) => GroupDetail;
+
+  const setData = useCallback(
+    (updater: Updater) => {
+      _setData((prev) => {
+        if (!prev) return prev;
+
+        const next = updater(prev);
+
+        // IMPORTANTE: agenda a atualização do provider para o PRÓXIMO TICK,
+        // nunca durante o render atual.
+        setTimeout(() => {
+          setGroup(groupId, next).catch((err) => {
+            console.warn("Erro ao salvar grupo no provider:", err);
+          });
+        }, 0);
+
+        return next;
+      });
+    },
+    [groupId, setGroup],
+  );
+
+  // 3) markAsRead: usa updateAndPersist
+  const markAsRead = useCallback(() => {
+    setData((current) => {
+      const lastRead = new Date(current.lastReadAt ?? 0).getTime();
+      const lastMsg = new Date(current.lastMessageAt ?? 0).getTime();
+
+      if (lastRead >= lastMsg) return current;
+
+      const updated: GroupDetail = {
+        ...current,
         unreadCount: 0,
         lastReadAt: new Date().toISOString(),
+      };
+
+      apiService.group.markAsRead(Number(groupId)).catch((err) => {
+        console.warn("Erro ao marcar como lido:", err);
       });
-      await apiService.group.read(Number(groupId));
-    }
-  }
 
-  useEffect(() => {
-    (async () => {
-      const details = await AsyncStorage.getItem(`${STORAGE_GROUP_PREFIX}${groupId}`);
-      if (details) setData(JSON.parse(details));
-    })();
-  }, [groupId, groups]);
+      return updated;
+    });
+  }, [groupId, setData]);
 
-  async function refresh() {
+  // 4) refresh: busca do backend e atualiza estado local (o provider já é atualizado por refreshGroup)
+  const refresh = useCallback(async () => {
     const fresh = await refreshGroup(groupId);
     if (fresh) {
-      setData(fresh);
+      _setData(fresh); // refreshGroup já chamou setGroup/faz cache
     }
-  }
+  }, [groupId, refreshGroup]);
 
   return {
     data,
+    setData,
     markAsRead,
     refresh,
   };

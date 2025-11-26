@@ -2,11 +2,11 @@ import { ChatInputBar } from "@/components/chat/chat-input-bar";
 import { ChatMessage, ChatMessageBubble } from "@/components/chat/chat-message-bubble";
 import { AdminDrawModal } from "@/components/group/admin-draw-modal";
 import { GroupInfoModal } from "@/components/group/info-modal";
-import { MembersModal, MemberWithWishlist } from "@/components/group/members-modal";
+import { MembersModal } from "@/components/group/members-modal";
 import { GroupMenuSheet } from "@/components/group/menu-sheet";
 import { WishlistItem, WishlistModal } from "@/components/group/wishlist-modal";
 import { useGroupData } from "@/components/provider";
-import { apiService, GroupDetail } from "@/services/api";
+import { apiService } from "@/services/api";
 import { Ionicons } from "@expo/vector-icons";
 import { router, useLocalSearchParams } from "expo-router";
 import React, { useEffect, useRef, useState } from "react";
@@ -21,13 +21,9 @@ export default function GroupChatScreen() {
 
   const [sending, setSending] = useState(false);
 
-  const { data, markAsRead } = useGroupData(groupId);
+  const { data, setData, markAsRead } = useGroupData(groupId);
   const [activeTab, setActiveTab] = useState<"general" | "assignedOf" | "myAssigned">("general");
-  const [messages, setMessages] = useState<GroupDetail["groupMessages"]>([]);
-  const [myAssignedMessages, setMyAssignedMessages] = useState<GroupDetail["messagesAsGiftSender"]>([]);
-  const [assignedOfMessages, setAssignedOfMessages] = useState<GroupDetail["messagesAsGiftReceiver"]>([]);
 
-  const [members, setMembers] = useState<MemberWithWishlist[]>([]);
   const [myWishlist, setMyWishlist] = useState<WishlistItem[]>([]);
   const [selectedMemberWishlist, setSelectedMemberWishlist] = useState<{
     memberId: number;
@@ -43,46 +39,59 @@ export default function GroupChatScreen() {
   const [myWishlistVisible, setMyWishlistVisible] = useState(false);
   const [adminDrawVisible, setAdminDrawVisible] = useState(false);
 
-  const messagesToRender = activeTab === "general" ? messages : activeTab === "assignedOf" ? assignedOfMessages : myAssignedMessages;
+  const messagesToRender =
+    activeTab === "general"
+      ? data?.groupMessages || []
+      : activeTab === "assignedOf"
+        ? data?.messagesAsGiftReceiver || []
+        : data?.messagesAsGiftSender || [];
 
   const handleSendMessage = async (text: string, receiverId?: number) => {
-    try {
-      setSending(true);
-      if (receiverId) {
-        if (receiverId === data?.myAssignedUserId) {
-          setMyAssignedMessages((prev) => [
-            ...prev,
+    setData((prev) => ({
+      ...prev,
+      groupMessages: !receiverId
+        ? [
+            ...prev.groupMessages,
             { id: Math.random() * -1, content: text, createdAt: new Date().toISOString(), isMine: true, sender: "Você" },
-          ]);
-        } else if (receiverId === data?.assignedOfUserId) {
-          setAssignedOfMessages((prev) => [
-            ...prev,
-            { id: Math.random() * -1, content: text, createdAt: new Date().toISOString(), isMine: true, sender: "Você" },
-          ]);
-        }
-      } else {
-        setMessages((prev) => [
-          ...prev,
-          { id: Math.random() * -1, content: text, createdAt: new Date().toISOString(), isMine: true, sender: "Você" },
-        ]);
-      }
-      await apiService.group.sendMessage(numericGroupId, text, receiverId);
-    } catch (err) {
-      console.error("Erro ao enviar mensagem:", err);
-    } finally {
-      setSending(false);
-    }
+          ]
+        : prev.groupMessages,
+      messagesAsGiftReceiver:
+        receiverId === prev.assignedOfUserId
+          ? [
+              ...prev.messagesAsGiftReceiver,
+              { id: Math.random() * -1, content: text, createdAt: new Date().toISOString(), isMine: true, sender: "Você" },
+            ]
+          : prev.messagesAsGiftReceiver,
+      messagesAsGiftSender:
+        receiverId === prev.myAssignedUserId
+          ? [
+              ...prev.messagesAsGiftSender,
+              { id: Math.random() * -1, content: text, createdAt: new Date().toISOString(), isMine: true, sender: "Você" },
+            ]
+          : prev.messagesAsGiftSender,
+      lastMessage: {
+        id: Math.random() * -1,
+        sender: "Você",
+        content: text,
+        createdAt: new Date().toISOString(),
+        isMine: true,
+      },
+      lastMessageAt: new Date().toISOString(),
+      lastUpdate: new Date().toISOString(),
+    }));
+    await apiService.group.sendMessage(numericGroupId, text, receiverId);
   };
 
   useEffect(() => {
-    if (data) {
-      setMembers(data.members || []);
-      setMessages(data.groupMessages || []);
-      setMyAssignedMessages(data.messagesAsGiftSender || []);
-      setAssignedOfMessages(data.messagesAsGiftReceiver || []);
+    if (!data?.lastMessageAt) return;
+
+    // impede rodar no mesmo frame da renderização
+    const timeout = setTimeout(() => {
       markAsRead();
-    }
-  }, [data, markAsRead, numericGroupId]);
+    }, 120);
+
+    return () => clearTimeout(timeout);
+  }, [data?.lastMessageAt, markAsRead]);
 
   const handleAddWishlistItem = async (payload: Omit<WishlistItem, "id">) => {
     try {
@@ -237,7 +246,7 @@ export default function GroupChatScreen() {
         <MembersModal
           visible={membersVisible}
           onClose={() => setMembersVisible(false)}
-          members={members}
+          members={data?.members}
           myMemberId={data.myMemberId}
           myAssignedUserId={data.myAssignedUserId}
           onOpenMemberWishlist={handleOpenMemberWishlist}
