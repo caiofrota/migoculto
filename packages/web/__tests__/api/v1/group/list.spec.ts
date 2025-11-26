@@ -1,6 +1,6 @@
 import prisma from "__tests__/__mocks__/prisma";
 
-import { GET } from "app/api/v1/group/all/route";
+import { GET } from "app/api/v1/groups/route";
 import { NextRequest } from "next/server";
 import { beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
 
@@ -12,7 +12,7 @@ vi.mock("app/api/v1/session/authentication", async () => ({
   getRequestUser: hoisted.requestUser,
 }));
 
-describe("GET /api/v1/group/all", () => {
+describe("GET /api/v1/groups", () => {
   const membership = {
     id: 1,
     groupId: 1,

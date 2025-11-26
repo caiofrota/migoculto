@@ -5,7 +5,7 @@ import { NextRequest, NextResponse } from "next/server";
 import z from "zod";
 import { getRequestUser } from "../../session/authentication";
 
-async function handleGet(request: NextRequest, ctx: RouteContext<"/api/v1/group/[groupId]">) {
+async function handleGet(request: NextRequest, ctx: RouteContext<"/api/v1/groups/[groupId]/mark-as-read">) {
   const user = await getRequestUser(request);
   const p = await ctx.params;
   const { groupId } = schema.parse(p);

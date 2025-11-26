@@ -2,11 +2,15 @@ import { withErrorHandling } from "errors/handler";
 import { prisma } from "lib/database";
 import { NextRequest, NextResponse } from "next/server";
 import z from "zod";
-import { getRequestUser } from "../../session/authentication";
+import { getRequestUser } from "../../../session/authentication";
 
-async function handlePost(request: NextRequest) {
+export const POST = await withErrorHandling(joinGroup);
+
+async function joinGroup(request: NextRequest, ctx: RouteContext<"/api/v1/groups/[groupId]/join">) {
   const user = await getRequestUser(request);
-  const { groupId, password } = schema.parse(await request.json());
+  const pathParams = await ctx.params;
+  const { groupId } = path.parse(pathParams);
+  const { password } = body.parse(await request.json());
 
   const result = await prisma.group.update({
     where: { id: groupId, password },
@@ -24,9 +28,10 @@ async function handlePost(request: NextRequest) {
   return NextResponse.json(result, { status: 200 });
 }
 
-export const POST = await withErrorHandling(handlePost);
-
-const schema = z.object({
+const path = z.object({
   groupId: z.coerce.number(),
+});
+
+const body = z.object({
   password: z.string().min(1),
 });

@@ -6,10 +6,12 @@ import { NextRequest, NextResponse } from "next/server";
 import z from "zod";
 import { getRequestUser } from "../../../session/authentication";
 
-async function handlePost(request: NextRequest, ctx: RouteContext<"/api/v1/group/[groupId]/message">) {
+export const POST = await withErrorHandling(getGroupAvailableMessages);
+
+async function getGroupAvailableMessages(request: NextRequest, ctx: RouteContext<"/api/v1/groups/[groupId]/message">) {
   const user = await getRequestUser(request);
-  const p = await ctx.params;
-  const { groupId } = schema.parse(p);
+  const pathParams = await ctx.params;
+  const { groupId } = path.parse(pathParams);
   const { content, receiverId } = body.parse(await request.json());
 
   const group = await prisma.group.findUnique({
@@ -50,9 +52,7 @@ async function handlePost(request: NextRequest, ctx: RouteContext<"/api/v1/group
   });
 }
 
-export const POST = await withErrorHandling(handlePost);
-
-const schema = z.object({
+const path = z.object({
   groupId: z.coerce.number(),
 });
 

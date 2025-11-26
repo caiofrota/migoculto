@@ -4,10 +4,12 @@ import { NextRequest, NextResponse } from "next/server";
 import z from "zod";
 import { getRequestUser } from "../../../session/authentication";
 
-async function handlePost(request: NextRequest, ctx: RouteContext<"/api/v1/group/[groupId]/message">) {
+export const POST = await withErrorHandling(updateGroupLastReadAt);
+
+async function updateGroupLastReadAt(request: NextRequest, ctx: RouteContext<"/api/v1/groups/[groupId]/mark-as-read">) {
   const user = await getRequestUser(request);
-  const params = await ctx.params;
-  const data = schema.parse(params);
+  const pathParams = await ctx.params;
+  const data = path.parse(pathParams);
 
   const result = await prisma.member.update({
     where: { groupAndUser: { groupId: data.groupId, userId: user.id } },
@@ -17,8 +19,6 @@ async function handlePost(request: NextRequest, ctx: RouteContext<"/api/v1/group
   return NextResponse.json(result, { status: 200 });
 }
 
-export const POST = await withErrorHandling(handlePost);
-
-const schema = z.object({
+const path = z.object({
   groupId: z.coerce.number(),
 });
