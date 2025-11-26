@@ -76,7 +76,7 @@ async function findAllUserGroups(request: NextRequest) {
               id: lastMessage.id,
               sender:
                 lastMessage.senderId === member.userId
-                  ? "Eu"
+                  ? "Você"
                   : !lastMessage.receiverId
                     ? `${lastMessage.sender.firstName} ${lastMessage.sender.lastName}`
                     : lastMessage.senderId === member.assignedUserId

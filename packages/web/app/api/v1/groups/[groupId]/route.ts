@@ -68,7 +68,7 @@ async function handleGet(request: NextRequest, ctx: RouteContext<"/api/v1/groups
           id: lastMessage.id,
           sender:
             lastMessage.senderId === membership?.userId
-              ? "Eu"
+              ? "Você"
               : !lastMessage.receiverId
                 ? `${lastMessage.sender.firstName} ${lastMessage.sender.lastName}`
                 : lastMessage.senderId === membership?.assignedUserId
@@ -83,7 +83,7 @@ async function handleGet(request: NextRequest, ctx: RouteContext<"/api/v1/groups
       .filter((m) => m.receiverId === null)
       .map((msg) => ({
         id: msg.id,
-        sender: msg.senderId === user.id ? "Eu" : `${msg.sender.firstName} ${msg.sender.lastName}`,
+        sender: msg.senderId === user.id ? "Você" : `${msg.sender.firstName} ${msg.sender.lastName}`,
         content: msg.content,
         createdAt: msg.createdAt,
         isMine: msg.senderId === user.id,
@@ -96,13 +96,13 @@ async function handleGet(request: NextRequest, ctx: RouteContext<"/api/v1/groups
         id: msg.id,
         sender:
           msg.senderId === user.id
-            ? "Eu"
+            ? "Você"
             : group.status === "CLOSED"
               ? myAssigned?.firstName + " " + myAssigned?.lastName
               : "Quem eu tirei",
         receiver:
           msg.receiverId === user.id
-            ? "Eu"
+            ? "Você"
             : group.status === "CLOSED"
               ? myAssigned?.firstName + " " + myAssigned?.lastName
               : "Quem eu tirei",
