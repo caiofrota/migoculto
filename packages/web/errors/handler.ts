@@ -1,3 +1,4 @@
+import { Prisma } from "@prisma/client";
 import { BaseError } from "errors";
 import { NextRequest, NextResponse } from "next/server";
 import z from "zod";
@@ -32,6 +33,63 @@ export async function withErrorHandling(handler: Handler): Promise<Handler> {
           },
           { status: 400 },
         );
+      } else if (error instanceof Prisma.PrismaClientKnownRequestError) {
+        if (error.code === "P2025") {
+          return NextResponse.json(
+            {
+              status: "error",
+              error: "NotFoundError",
+              message: "Recurso não encontrado.",
+              action: "Por favor, verifique os dados fornecidos e tente novamente.",
+              error_id: crypto.randomUUID(),
+            },
+            { status: 404 },
+          );
+        } else if (error.code === "P2002") {
+          return NextResponse.json(
+            {
+              status: "error",
+              error: "ConflictError",
+              message: "Conflito de dados.",
+              action: "Os dados fornecidos já existem. Por favor, verifique e tente novamente.",
+              error_id: crypto.randomUUID(),
+            },
+            { status: 409 },
+          );
+        } else if (error.code === "P2003") {
+          return NextResponse.json(
+            {
+              status: "error",
+              error: "ForeignKeyConstraintError",
+              message: "Violação de chave estrangeira.",
+              action: "Os dados fornecidos referenciam um recurso inexistente. Por favor, verifique e tente novamente.",
+              error_id: crypto.randomUUID(),
+            },
+            { status: 400 },
+          );
+        } else if (error.code === "P2004") {
+          return NextResponse.json(
+            {
+              status: "error",
+              error: "ConstraintViolationError",
+              message: "Violação de restrição.",
+              action: "Os dados fornecidos violam uma restrição. Por favor, verifique e tente novamente.",
+              error_id: crypto.randomUUID(),
+            },
+            { status: 400 },
+          );
+        } else if (error.code === "P2005") {
+          return NextResponse.json(
+            {
+              status: "error",
+              error: "InvalidDataError",
+              message: "Dados inválidos.",
+              action: "Os dados fornecidos são inválidos para um ou mais campos. Por favor, verifique e tente novamente.",
+              error_id: crypto.randomUUID(),
+            },
+            { status: 400 },
+          );
+        }
       }
       console.error(error);
       return NextResponse.json(
