@@ -9,8 +9,7 @@ interface Props {
   onOpenInfo: () => void;
   onOpenMembers: () => void;
   onOpenMyWishlist: () => void;
-  onGoToPrivateChat: () => void; // <--- novo nome
-  onInvite: () => void;
+  onQRCode: () => void;
   onOpenAdminDraw: () => void;
 }
 
@@ -22,7 +21,7 @@ export const GroupMenuSheet: React.FC<Props> = ({
   onOpenInfo,
   onOpenMembers,
   onOpenMyWishlist,
-  onInvite,
+  onQRCode,
   onOpenAdminDraw,
 }) => {
   const canDraw = isAdmin && status === "OPEN";
@@ -53,8 +52,8 @@ export const GroupMenuSheet: React.FC<Props> = ({
                 <Text style={styles.itemText}>Minha lista de presentes</Text>
               </TouchableOpacity>
 
-              <TouchableOpacity style={styles.item} onPress={() => handle(onInvite)}>
-                <Text style={styles.itemText}>Convidar membros</Text>
+              <TouchableOpacity style={styles.item} onPress={() => handle(onQRCode)}>
+                <Text style={styles.itemText}>QR Code</Text>
               </TouchableOpacity>
 
               {canDraw && (

@@ -4,8 +4,8 @@ import { useAuth, useGroups } from "@/components/provider";
 import { QrScannerModal } from "@/components/qr-scanner-modal";
 import { Group } from "@/services/api";
 import { Ionicons } from "@expo/vector-icons";
-import { useRouter } from "expo-router";
-import React, { useMemo, useState } from "react";
+import { useLocalSearchParams, useRouter } from "expo-router";
+import React, { useEffect, useMemo, useState } from "react";
 import { FlatList, StatusBar, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
@@ -13,6 +13,7 @@ type Filter = "all" | "owner" | "participant";
 
 export const GroupsScreen = () => {
   const { logout } = useAuth();
+  const { action, code, password } = useLocalSearchParams<{ action?: string; code?: string; password?: string }>();
   const router = useRouter();
   const [filter, setFilter] = useState<Filter>("all");
   const [showArchived, setShowArchived] = useState<boolean>(false);
@@ -90,6 +91,13 @@ export const GroupsScreen = () => {
         return status;
     }
   }
+
+  useEffect(() => {
+    if (action === "join") {
+      setScannedData(JSON.stringify({ groupCode: code, password }));
+      setIsJoinModalOpen(true);
+    }
+  }, [action, code, password]);
 
   const renderGroupItem = ({ item }: { item: Group }) => {
     const initials = getInitials(item.name);

@@ -1,6 +1,7 @@
 import { ChatInputBar } from "@/components/chat/chat-input-bar";
 import { ChatMessage, ChatMessageBubble } from "@/components/chat/chat-message-bubble";
 import { AdminDrawModal } from "@/components/group/admin-draw-modal";
+import { GroupQRCodeModal } from "@/components/group/group-qrcode";
 import { GroupInfoModal } from "@/components/group/info-modal";
 import { MembersModal } from "@/components/group/members-modal";
 import { GroupMenuSheet } from "@/components/group/menu-sheet";
@@ -36,6 +37,7 @@ export default function GroupChatScreen() {
   const [membersVisible, setMembersVisible] = useState(false);
   const [myWishlistVisible, setMyWishlistVisible] = useState(false);
   const [adminDrawVisible, setAdminDrawVisible] = useState(false);
+  const [qrCodeVisible, setQrCodeVisible] = useState(false);
 
   const messagesToRender =
     activeTab === "general"
@@ -229,12 +231,7 @@ export default function GroupChatScreen() {
           onOpenInfo={() => setInfoVisible(true)}
           onOpenMembers={() => setMembersVisible(true)}
           onOpenMyWishlist={() => setMyWishlistVisible(true)}
-          onGoToPrivateChat={() => {
-            setActiveTab("general");
-          }}
-          onInvite={() => {
-            console.log("invite");
-          }}
+          onQRCode={() => setQrCodeVisible(true)}
           onOpenAdminDraw={() => setAdminDrawVisible(true)}
         />
 
@@ -272,6 +269,8 @@ export default function GroupChatScreen() {
           status={data.status as GroupStatus}
           onConfirmDraw={handleConfirmDraw}
         />
+
+        <GroupQRCodeModal visible={qrCodeVisible} onClose={() => setQrCodeVisible(false)} group={data} />
       </SafeAreaView>
     </KeyboardAvoidingView>
   );
