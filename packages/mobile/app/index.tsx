@@ -5,7 +5,7 @@ import { QrScannerModal } from "@/components/qr-scanner-modal";
 import { Group } from "@/services/api";
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useMemo, useState } from "react";
 import { FlatList, StatusBar, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
@@ -22,9 +22,7 @@ export const GroupsScreen = () => {
   const [isActionSheetOpen, setIsActionSheetOpen] = useState(false);
   const [isJoinModalOpen, setIsJoinModalOpen] = useState(false);
   const [isScannerOpen, setIsScannerOpen] = useState(false);
-
-  const [joinGroupCode, setJoinGroupCode] = useState("");
-  const [joinPassword, setJoinPassword] = useState("");
+  const [scannedData, setScannedData] = useState<string | undefined>(undefined);
 
   const handleFabPress = () => {
     setIsActionSheetOpen(true);
@@ -70,43 +68,15 @@ export const GroupsScreen = () => {
     setIsScannerOpen(true);
   };
 
-  const handleConfirmJoin = async () => {
-    try {
-      /*
-    await apiService.joinGroup({
-      code: joinGroupCode,
-      password: joinPassword,
-    });
-*/
-      setIsJoinModalOpen(false);
-      setJoinGroupCode("");
-      setJoinPassword("");
-
-      //const updatedGroups = await apiService.group.all();
-      //setGroups(updatedGroups);
-    } catch (error) {
-      console.error("Erro ao entrar no grupo:", error);
-    }
+  const handleConfirmJoin = async (groupId: number) => {
+    setIsJoinModalOpen(false);
+    router.push(`/group/details?groupId=${groupId}`);
   };
 
   const handleCodeScanned = (data: string) => {
-    setJoinGroupCode(data);
-    setJoinPassword("");
+    setScannedData(data);
     setIsJoinModalOpen(true);
   };
-
-  useEffect(() => {
-    const fetchGroups = async () => {
-      try {
-        //const groups = await apiService.group.all();
-        //setGroups(groups);
-      } catch (error) {
-        console.error("Error fetching groups:", error);
-      }
-    };
-
-    fetchGroups();
-  }, []);
 
   function parseStatus(status: string) {
     switch (status) {
@@ -221,12 +191,9 @@ export const GroupsScreen = () => {
 
       <JoinGroupModal
         visible={isJoinModalOpen}
-        groupCode={joinGroupCode}
-        password={joinPassword}
-        onChangeGroupCode={setJoinGroupCode}
-        onChangePassword={setJoinPassword}
         onConfirm={handleConfirmJoin}
         onClose={() => setIsJoinModalOpen(false)}
+        scannedData={scannedData}
       />
 
       <QrScannerModal visible={isScannerOpen} onClose={() => setIsScannerOpen(false)} onCodeScanned={handleCodeScanned} />

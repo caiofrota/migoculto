@@ -1,4 +1,6 @@
-import React from "react";
+import { CustomError } from "@/errors";
+import { apiService } from "@/services/api";
+import React, { useEffect } from "react";
 import {
   KeyboardAvoidingView,
   Modal,
@@ -10,26 +12,70 @@ import {
   TouchableWithoutFeedback,
   View,
 } from "react-native";
+import { useGroups } from "./provider";
 
 interface JoinGroupModalProps {
   visible: boolean;
   onClose: () => void;
-  groupCode: string;
-  password: string;
-  onChangeGroupCode: (text: string) => void;
-  onChangePassword: (text: string) => void;
-  onConfirm: () => void;
+  onConfirm: (groupId: number) => void;
+  scannedData?: string;
 }
 
-export const JoinGroupModal: React.FC<JoinGroupModalProps> = ({
-  visible,
-  onClose,
-  groupCode,
-  password,
-  onChangeGroupCode,
-  onChangePassword,
-  onConfirm,
-}) => {
+export const JoinGroupModal: React.FC<JoinGroupModalProps> = ({ visible, onClose, onConfirm, scannedData }) => {
+  const { setGroupDetails } = useGroups();
+
+  const [groupCode, setGroupCode] = React.useState("");
+  const [password, setPassword] = React.useState("");
+  const [loading, setLoading] = React.useState(false);
+  const [error, setError] = React.useState<string | undefined>(undefined);
+
+  async function handleConfirm() {
+    setError(undefined);
+    try {
+      if (!groupCode) {
+        setError("Por favor, insira o código do grupo.");
+        return;
+      }
+      if (!password) {
+        setError("Por favor, insira a senha do grupo.");
+        return;
+      }
+      setLoading(true);
+      const group = await apiService.group.join(Number(groupCode), password);
+      setGroupCode("");
+      setPassword("");
+      setGroupDetails(group.id, group);
+      onConfirm(group.id);
+    } catch (error) {
+      if (error instanceof CustomError) {
+        if (error.type === "NotFoundError") {
+          setError("Grupo não encontrado. Verifique o código e a senha.");
+          return;
+        } else if (error.type === "ConflictError") {
+          setError("Você já é membro deste grupo.");
+          return;
+        }
+      }
+      setError("Código ou senha inválidos. Tente novamente.");
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  useEffect(() => {
+    if (scannedData) {
+      setGroupCode("");
+      setPassword("");
+      try {
+        const data = JSON.parse(scannedData);
+        setGroupCode(data.groupCode);
+        setPassword(data.password);
+      } catch {
+        setError("O código escaneado é inválido.");
+      }
+    }
+  }, [scannedData]);
+
   return (
     <Modal visible={visible} transparent animationType="fade" onRequestClose={onClose}>
       <TouchableWithoutFeedback onPress={onClose}>
@@ -45,7 +91,7 @@ export const JoinGroupModal: React.FC<JoinGroupModalProps> = ({
                   placeholder="Ex: 12345"
                   placeholderTextColor="#aaa"
                   value={groupCode}
-                  onChangeText={onChangeGroupCode}
+                  onChangeText={setGroupCode}
                 />
 
                 <Text style={styles.label}>Senha</Text>
@@ -55,16 +101,22 @@ export const JoinGroupModal: React.FC<JoinGroupModalProps> = ({
                   placeholderTextColor="#aaa"
                   secureTextEntry
                   value={password}
-                  onChangeText={onChangePassword}
+                  onChangeText={setPassword}
                 />
+
+                {error ? <Text style={{ color: "#FF6B6B", marginTop: 8 }}>{error}</Text> : null}
 
                 <View style={styles.buttonsRow}>
                   <TouchableOpacity style={[styles.button, styles.cancelButton]} onPress={onClose}>
                     <Text style={styles.cancelText}>Cancelar</Text>
                   </TouchableOpacity>
 
-                  <TouchableOpacity style={[styles.button, styles.confirmButton]} onPress={onConfirm}>
-                    <Text style={styles.confirmText}>Entrar</Text>
+                  <TouchableOpacity
+                    style={[styles.button, styles.confirmButton, loading && styles.buttonDisabled]}
+                    onPress={handleConfirm}
+                    disabled={loading}
+                  >
+                    <Text style={styles.confirmText}>{loading ? "Entrando..." : "Entrar"}</Text>
                   </TouchableOpacity>
                 </View>
               </View>
@@ -121,6 +173,9 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingVertical: 10,
     borderRadius: 999,
+  },
+  buttonDisabled: {
+    opacity: 0.6,
   },
   cancelButton: {},
   cancelText: {

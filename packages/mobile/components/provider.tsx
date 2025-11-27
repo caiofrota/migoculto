@@ -21,6 +21,7 @@ type AppContextValue = {
   // Group cache
   groups: Group[] | null;
   setGroup: (groupId: string | number, data: GroupDetail) => Promise<void>;
+  setGroupDetails: (groupId: string | number, data: GroupDetail) => Promise<void>;
   refreshGroup: (groupId: string | number) => Promise<GroupDetail | null>;
 };
 
@@ -171,6 +172,16 @@ export function AppProvider({ children }: GroupsCacheProviderProps) {
     }
   }
 
+  async function setGroupDetails(groupId: string | number, data: GroupDetail) {
+    const key = String(groupId);
+    try {
+      setGroup(groupId, data);
+      await AsyncStorage.setItem(`${STORAGE_GROUP_PREFIX}${key}`, JSON.stringify(data));
+    } catch (e) {
+      console.warn("Erro ao salvar grupo no AsyncStorage:", e);
+    }
+  }
+
   async function refreshGroups() {
     try {
       const groups = await apiService.group.all();
@@ -193,7 +204,9 @@ export function AppProvider({ children }: GroupsCacheProviderProps) {
 
   if (showSplash) return <Text>Splash Screen</Text>;
   return (
-    <AppContext.Provider value={{ loading, refresh, user, login, logout, groups, setGroup, refreshGroup }}>{children}</AppContext.Provider>
+    <AppContext.Provider value={{ loading, refresh, user, login, logout, groups, setGroup, setGroupDetails, refreshGroup }}>
+      {children}
+    </AppContext.Provider>
   );
 }
 
@@ -209,8 +222,8 @@ export function useAuth() {
 }
 
 export function useGroups() {
-  const { groups, setGroup, refreshGroup } = useAppContext();
-  return { groups, setGroup, refreshGroup };
+  const { groups, setGroup, setGroupDetails, refreshGroup } = useAppContext();
+  return { groups, setGroup, setGroupDetails, refreshGroup };
 }
 
 export function useGroupData(groupId: string | number) {
