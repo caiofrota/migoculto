@@ -5,7 +5,7 @@ import { router } from "expo-router";
 import { useEffect } from "react";
 import { Platform } from "react-native";
 
-export async function registerForPushNotificationsAsync(onReceived?: (notification: Notifications.Notification) => Promise<void>) {
+export async function registerForPushNotificationsAsync() {
   let token;
 
   if (Platform.OS === "android") {
@@ -31,8 +31,6 @@ export async function registerForPushNotificationsAsync(onReceived?: (notificati
       projectId: Constants.expoConfig?.extra?.eas.projectId,
     });
   }
-
-  if (onReceived) Notifications.addNotificationReceivedListener(async (notification) => await onReceived(notification));
 
   return token?.data;
 }
