@@ -1,6 +1,6 @@
 import prisma from "__tests__/__mocks__/prisma";
 
-import { POST } from "app/api/v1/[groupId]/draw/route";
+import { POST } from "app/api/v1/groups/[groupId]/draw/route";
 import { NextRequest } from "next/server";
 import { describe, expect, it, vi } from "vitest";
 

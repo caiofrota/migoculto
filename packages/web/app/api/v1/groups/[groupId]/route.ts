@@ -63,6 +63,16 @@ async function handleGet(request: NextRequest, ctx: RouteContext<"/api/v1/groups
     lastMessageAt: lastMessage ? lastMessage.createdAt : null,
     unreadCount: unread.length,
     lastUpdate,
+    membership: membership,
+    members: group.members.map((member) => ({
+      id: member.id,
+      userId: member.userId,
+      firstName: member.user.firstName,
+      lastName: member.user.lastName,
+      assignedUserId: group.status === "CLOSED" || user.id === member.userId ? member.assignedUserId : null,
+      isConfirmed: member.isConfirmed,
+      wishlistCount: 0,
+    })),
     lastMessage: lastMessage
       ? {
           id: lastMessage.id,
