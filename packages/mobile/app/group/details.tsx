@@ -11,7 +11,7 @@ import { apiService } from "@/services/api";
 import { Ionicons } from "@expo/vector-icons";
 import { router, useLocalSearchParams } from "expo-router";
 import React, { useEffect, useRef, useState } from "react";
-import { ActivityIndicator, FlatList, KeyboardAvoidingView, Platform, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { ActivityIndicator, Alert, FlatList, KeyboardAvoidingView, Platform, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 type GroupStatus = "OPEN" | "CLOSED" | "DRAWN";
@@ -118,10 +118,23 @@ export default function GroupChatScreen() {
   const handleConfirmDraw = async () => {
     if (!data) return;
     try {
-      //await apiService.drawSecretFriend(numericGroupId);
+      const result = await apiService.group.draw(numericGroupId);
       setAdminDrawVisible(false);
+      setData((prev) => ({
+        ...prev,
+        status: "DRAWN",
+        updatedAt: new Date().toISOString(),
+        myAssignedUserId: result.members.find((m: any) => m.userId === prev.userId)?.assignedUserId || null,
+        members: prev.members.map((member) => ({
+          ...member,
+          assignedUserId: result.members.find((m: any) => m.userId === member.userId)?.assignedUserId || null,
+        })),
+      }));
+      Alert.alert("Sorteio realizado", "O sorteio foi realizado com sucesso.");
     } catch (err) {
+      setAdminDrawVisible(false);
       console.error("Erro ao sortear:", err);
+      Alert.alert("Erro", "Ocorreu um erro ao sortear. Tente novamente mais tarde.");
     }
   };
 
@@ -146,7 +159,7 @@ export default function GroupChatScreen() {
       <SafeAreaView style={styles.container} edges={["top", "left", "right"]}>
         <View style={styles.header}>
           <TouchableOpacity style={styles.headerBackButton} onPress={() => router.back()} activeOpacity={0.8}>
-            <Ionicons name="chevron-back" size={22} color="#FFB4A2" />
+            <Ionicons name="chevron-back" size={22} color="#FFFFFF" />
           </TouchableOpacity>
 
           <View style={styles.headerCenter}>

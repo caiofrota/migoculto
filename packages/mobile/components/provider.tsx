@@ -5,7 +5,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { Text } from "@react-navigation/elements";
 import * as Notifications from "expo-notifications";
 import React, { createContext, ReactNode, useCallback, useContext, useEffect, useRef, useState } from "react";
-import { Alert, Linking } from "react-native";
+import { Alert, AppState, Linking } from "react-native";
 import { getAccessToken, setPushNotificationToken } from "../storage";
 
 const STORAGE_GROUP_PREFIX = "@group-cache:";
@@ -13,7 +13,6 @@ const STORAGE_USER_PREFIX = "@user-cache";
 
 type AppContextValue = {
   loading: boolean;
-  refresh: () => Promise<void>;
   // Auth
   user: User | null;
   login: (email: string, password: string) => Promise<void>;
@@ -65,6 +64,7 @@ export function AppProvider({ children }: GroupsCacheProviderProps) {
 
   const initializePushNotifications = useCallback(async () => {
     const { status } = await Notifications.requestPermissionsAsync();
+
     if (status === "denied" && Math.random() < 0.05) {
       Alert.alert(
         "Ativar Notificações?",
@@ -73,17 +73,24 @@ export function AppProvider({ children }: GroupsCacheProviderProps) {
       );
     }
 
-    setPushNotificationToken(
-      await registerForPushNotificationsAsync(async (notification) => {
-        if (notification.request.content.data?.groupId) {
-          await refreshGroup(notification.request.content.data.groupId as number);
-        }
-      }),
-    );
+    const token = await registerForPushNotificationsAsync();
+    if (token) {
+      setPushNotificationToken(token);
+    }
 
-    notificationListener.current = Notifications.addNotificationReceivedListener((notification) => setNotification(notification ?? false));
+    notificationListener.current = Notifications.addNotificationReceivedListener(async (notification) => {
+      const groupId = notification.request.content.data.groupId as number | undefined;
+      if (groupId) {
+        await refreshGroup(groupId);
+      }
+      setNotification(notification ?? false);
+    });
 
-    responseListener.current = Notifications.addNotificationResponseReceivedListener((_) => {
+    responseListener.current = Notifications.addNotificationResponseReceivedListener(async (response) => {
+      const groupId = response.notification.request.content.data.groupId as number | undefined;
+      if (groupId) {
+        await refreshGroup(groupId);
+      }
       /* { response: { "data": "ExponentPushToken[**********************]", "type": "expo" } } */
     });
 
@@ -92,29 +99,6 @@ export function AppProvider({ children }: GroupsCacheProviderProps) {
       if (responseListener.current) responseListener.current.remove();
     };
   }, [refreshGroup]);
-
-  useEffect(() => {
-    (async () => {
-      //AsyncStorage.clear();
-      const currentUser = await AsyncStorage.getItem(`${STORAGE_USER_PREFIX}`);
-      if (currentUser) setUser(JSON.parse(currentUser));
-      const storedGroups = await AsyncStorage.getItem(`${STORAGE_GROUP_PREFIX}all`);
-      if (storedGroups) setGroups(JSON.parse(storedGroups));
-      setShowSplash(false);
-      const token = await getAccessToken();
-      if (token) {
-        try {
-          await refreshUser();
-          await refreshGroups();
-          await initializePushNotifications();
-        } catch {
-          // TODO
-        }
-      } else {
-        clearData();
-      }
-    })();
-  }, [initializePushNotifications, refreshUser]);
 
   useEffect(() => {
     if (user) {
@@ -182,7 +166,7 @@ export function AppProvider({ children }: GroupsCacheProviderProps) {
     }
   }
 
-  async function refreshGroups() {
+  const refreshGroups = useCallback(async () => {
     try {
       const groups = await apiService.group.all();
       await Promise.all(
@@ -198,13 +182,42 @@ export function AppProvider({ children }: GroupsCacheProviderProps) {
     } catch (e) {
       console.warn("Erro ao buscar grupos no backend:", e);
     }
-  }
+  }, []);
 
-  async function refresh() {}
+  useEffect(() => {
+    (async () => {
+      AsyncStorage.clear();
+      const currentUser = await AsyncStorage.getItem(`${STORAGE_USER_PREFIX}`);
+      if (currentUser) setUser(JSON.parse(currentUser));
+      const storedGroups = await AsyncStorage.getItem(`${STORAGE_GROUP_PREFIX}all`);
+      if (storedGroups) setGroups(JSON.parse(storedGroups));
+      setShowSplash(false);
+      const token = await getAccessToken();
+      if (token) {
+        try {
+          await refreshUser();
+          await refreshGroups();
+          await initializePushNotifications();
+        } catch {
+          // TODO
+        }
+      } else {
+        clearData();
+      }
+    })();
+
+    const sub = AppState.addEventListener("change", (state) => {
+      if (state === "active") {
+        refreshGroups();
+      }
+    });
+
+    return () => sub.remove();
+  }, [initializePushNotifications, refreshGroups, refreshUser]);
 
   if (showSplash) return <Text>Splash Screen</Text>;
   return (
-    <AppContext.Provider value={{ loading, refresh, user, login, logout, groups, setGroup, setGroupDetails, refreshGroup }}>
+    <AppContext.Provider value={{ loading, user, login, logout, groups, setGroup, setGroupDetails, refreshGroup }}>
       {children}
     </AppContext.Provider>
   );
@@ -227,7 +240,7 @@ export function useGroups() {
 }
 
 export function useGroupData(groupId: string | number) {
-  const { setGroup, refreshGroup } = useAppContext();
+  const { groups, setGroup, refreshGroup } = useAppContext();
   const [data, _setData] = useState<GroupDetail | null>(null);
 
   useEffect(() => {
@@ -243,7 +256,7 @@ export function useGroupData(groupId: string | number) {
     return () => {
       cancelled = true;
     };
-  }, [groupId]);
+  }, [groups, groupId]);
 
   type Updater = (prev: GroupDetail) => GroupDetail;
 

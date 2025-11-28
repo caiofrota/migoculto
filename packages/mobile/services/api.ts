@@ -114,6 +114,9 @@ class CreateApiService {
         body: JSON.stringify({ password }),
       });
     },
+    draw: async (groupId: number): Promise<any> => {
+      return await this.post<any>(`/groups/${groupId}/draw`);
+    },
   };
 
   private async buildHeaders() {
