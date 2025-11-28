@@ -1,4 +1,3 @@
-import React from "react";
 import { FlatList, Modal, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 
 export interface MemberWithWishlist {
@@ -24,7 +23,7 @@ export const MembersModal: React.FC<Props> = ({ visible, onClose, members, myMem
     const fullName = (item.firstName || "") + " " + (item.lastName || "");
 
     const isMe = item.id === myMemberId;
-    const isMyDraw = item.userId === myAssignedUserId;
+    const isMyAssigned = item.userId === myAssignedUserId;
 
     return (
       <TouchableOpacity style={styles.row} onPress={() => onOpenMemberWishlist(item.id)} activeOpacity={0.8}>
@@ -34,9 +33,9 @@ export const MembersModal: React.FC<Props> = ({ visible, onClose, members, myMem
         <View style={styles.rowInfo}>
           <Text style={styles.name}>{fullName.trim() || "Participante sem nome"}</Text>
           <View style={styles.badgesRow}>
-            {isMe && <Text style={styles.badge}>Você</Text>}
             {item.isConfirmed && <Text style={styles.badge}>Confirmado</Text>}
-            {isMyDraw && <Text style={styles.badgeHighlight}>Você tirou</Text>}
+            {isMyAssigned && <Text style={styles.badgeHighlight}>Você tirou</Text>}
+            {isMe && <Text style={styles.badge}>Você</Text>}
           </View>
           <Text style={styles.wishlistInfo}>
             {item.wishlistCount === 0 ? "Nenhum item na lista ainda" : `${item.wishlistCount} item(s) na lista`}
@@ -94,7 +93,7 @@ const styles = StyleSheet.create({
     width: 38,
     height: 38,
     borderRadius: 19,
-    backgroundColor: "#5A0000",
+    backgroundColor: "#2E7D32",
     alignItems: "center",
     justifyContent: "center",
     marginRight: 10,
@@ -144,7 +143,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingVertical: 8,
     borderRadius: 999,
-    backgroundColor: "#E53935",
+    backgroundColor: "#2E7D32",
   },
   buttonText: {
     color: "#FFFFFF",

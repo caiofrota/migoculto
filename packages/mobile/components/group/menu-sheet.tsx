@@ -113,7 +113,7 @@ const styles = StyleSheet.create({
     marginTop: 4,
   },
   adminItemText: {
-    color: "#FFCDD2",
+    color: "#6EAD72",
     fontWeight: "600",
   },
   badgeText: {
@@ -127,7 +127,7 @@ const styles = StyleSheet.create({
     paddingVertical: 6,
   },
   cancelText: {
-    color: "#FFB4A2",
+    color: "#FFFFFF",
     fontSize: 15,
     fontWeight: "600",
   },

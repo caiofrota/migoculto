@@ -92,7 +92,7 @@ const styles = StyleSheet.create({
   },
   status: {
     marginTop: 4,
-    color: "#FFB4A2",
+    color: "#FFFFFF",
   },
   sectionTitle: {
     marginTop: 16,
@@ -111,7 +111,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingVertical: 8,
     borderRadius: 999,
-    backgroundColor: "#E53935",
+    backgroundColor: "#2E7D32",
   },
   buttonText: {
     color: "#FFFFFF",

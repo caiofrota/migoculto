@@ -77,7 +77,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingVertical: 8,
     borderRadius: 999,
-    backgroundColor: "#E53935",
+    backgroundColor: "#2E7D32",
   },
   confirmText: {
     color: "#FFFFFF",

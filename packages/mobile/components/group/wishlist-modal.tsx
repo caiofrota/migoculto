@@ -1,13 +1,5 @@
 import React, { useState } from "react";
-import {
-  Modal,
-  View,
-  Text,
-  StyleSheet,
-  TouchableOpacity,
-  FlatList,
-  TextInput,
-} from "react-native";
+import { FlatList, Modal, StyleSheet, Text, TextInput, TouchableOpacity, View } from "react-native";
 
 export interface WishlistItem {
   id: number;
@@ -26,14 +18,7 @@ interface Props {
   onAddItem?: (item: Omit<WishlistItem, "id">) => void;
 }
 
-export const WishlistModal: React.FC<Props> = ({
-  visible,
-  onClose,
-  title,
-  canEdit,
-  items,
-  onAddItem,
-}) => {
+export const WishlistModal: React.FC<Props> = ({ visible, onClose, title, canEdit, items, onAddItem }) => {
   const [name, setName] = useState("");
   const [url, setUrl] = useState("");
   const [description, setDescription] = useState("");
@@ -66,13 +51,7 @@ export const WishlistModal: React.FC<Props> = ({
                 value={name}
                 onChangeText={setName}
               />
-              <TextInput
-                style={styles.input}
-                placeholder="URL (opcional)"
-                placeholderTextColor="#aaa"
-                value={url}
-                onChangeText={setUrl}
-              />
+              <TextInput style={styles.input} placeholder="URL (opcional)" placeholderTextColor="#aaa" value={url} onChangeText={setUrl} />
               <TextInput
                 style={[styles.input, styles.textArea]}
                 placeholder="Descrição (opcional)"
@@ -94,9 +73,7 @@ export const WishlistModal: React.FC<Props> = ({
             renderItem={({ item }) => (
               <View style={styles.itemRow}>
                 <Text style={styles.itemName}>{item.name}</Text>
-                {item.description && (
-                  <Text style={styles.itemText}>{item.description}</Text>
-                )}
+                {item.description && <Text style={styles.itemText}>{item.description}</Text>}
                 {item.url && (
                   <Text style={styles.itemUrl} numberOfLines={1}>
                     {item.url}
@@ -104,11 +81,7 @@ export const WishlistModal: React.FC<Props> = ({
                 )}
               </View>
             )}
-            ListEmptyComponent={
-              <Text style={styles.emptyText}>
-                Nenhum item cadastrado ainda.
-              </Text>
-            }
+            ListEmptyComponent={<Text style={styles.emptyText}>Nenhum item cadastrado ainda.</Text>}
           />
 
           <TouchableOpacity style={styles.closeButton} onPress={onClose}>
@@ -203,7 +176,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingVertical: 8,
     borderRadius: 999,
-    backgroundColor: "#E53935",
+    backgroundColor: "#2E7D32",
   },
   closeButtonText: {
     color: "#FFFFFF",

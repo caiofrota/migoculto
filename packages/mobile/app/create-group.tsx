@@ -119,7 +119,7 @@ export default function CreateGroupScreen() {
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
         <TouchableOpacity style={styles.headerBackButton} onPress={() => router.back()} activeOpacity={0.8}>
-          <Ionicons name="chevron-back" size={22} color="#FFB4A2" />
+          <Ionicons name="chevron-back" size={22} color="#FFFFFF" />
           <Text style={styles.headerBackText}>Voltar</Text>
         </TouchableOpacity>
 
@@ -256,7 +256,7 @@ const styles = StyleSheet.create({
     gap: 4,
   },
   headerBackText: {
-    color: "#FFB4A2",
+    color: "#FFFFFF",
     fontWeight: "600",
     fontSize: 15,
   },
@@ -306,7 +306,7 @@ const styles = StyleSheet.create({
     fontSize: 15,
   },
   createButton: {
-    backgroundColor: "#E53935",
+    backgroundColor: "#2E7D32",
     paddingVertical: 14,
     borderRadius: 999,
     marginTop: 20,

@@ -83,7 +83,7 @@ const styles = StyleSheet.create({
   },
   status: {
     marginTop: 4,
-    color: "#FFB4A2",
+    color: "#FFFFFF",
     textAlign: "center",
   },
   sectionTitle: {

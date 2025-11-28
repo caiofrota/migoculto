@@ -100,7 +100,7 @@ export const QrScannerModal: React.FC<QrScannerModalProps> = ({ visible, onClose
       <SafeAreaView style={styles.container} edges={["left", "right"]}>
         <View style={[styles.headerAbsolute, { top: insets.top || 0 }]}>
           <TouchableOpacity style={styles.headerBackButton} onPress={onClose} activeOpacity={0.8}>
-            <Ionicons name="chevron-back" size={22} color="#FFB4A2" />
+            <Ionicons name="chevron-back" size={22} color="#FFFFFF" />
             <Text style={styles.backText}>Voltar</Text>
           </TouchableOpacity>
           <Text style={styles.headerTitle}>Escanear código do grupo</Text>
@@ -140,7 +140,7 @@ const styles = StyleSheet.create({
   },
   backText: {
     fontSize: 14,
-    color: "#FFB4A2",
+    color: "#FFFFFF",
     fontWeight: "600",
   },
   headerTitle: {
