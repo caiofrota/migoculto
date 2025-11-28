@@ -7,6 +7,7 @@ import { MembersModal } from "@/components/group/members-modal";
 import { GroupMenuSheet } from "@/components/group/menu-sheet";
 import { WishlistItem, WishlistModal } from "@/components/group/wishlist-modal";
 import { useGroupData } from "@/components/provider";
+import { CustomError } from "@/errors";
 import { apiService } from "@/services/api";
 import { Ionicons } from "@expo/vector-icons";
 import { router, useLocalSearchParams } from "expo-router";
@@ -37,6 +38,7 @@ export default function GroupChatScreen() {
   const [membersVisible, setMembersVisible] = useState(false);
   const [myWishlistVisible, setMyWishlistVisible] = useState(false);
   const [adminDrawVisible, setAdminDrawVisible] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const [qrCodeVisible, setQrCodeVisible] = useState(false);
 
   const messagesToRender =
@@ -118,6 +120,7 @@ export default function GroupChatScreen() {
   const handleConfirmDraw = async () => {
     if (!data) return;
     try {
+      setIsLoading(true);
       const result = await apiService.group.draw(numericGroupId);
       setAdminDrawVisible(false);
       setData((prev) => ({
@@ -131,10 +134,21 @@ export default function GroupChatScreen() {
         })),
       }));
       Alert.alert("Sorteio realizado", "O sorteio foi realizado com sucesso.");
-    } catch (err) {
+    } catch (error) {
       setAdminDrawVisible(false);
-      console.error("Erro ao sortear:", err);
-      Alert.alert("Erro", "Ocorreu um erro ao sortear. Tente novamente mais tarde.");
+      let title = "Erro";
+      let message = "Ocorreu um erro ao sortear. Tente novamente mais tarde.";
+      if (error instanceof CustomError) {
+        if (error.type === "InsufficientMembersError") {
+          title = "Membros insuficientes";
+          message = "O mínimo de membros de 3 pessoas é necessário. Convide mais pessoas ao grupo e tente novamente.";
+        }
+      } else {
+        console.error("Erro ao sortear:", error);
+      }
+      Alert.alert(title, message);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -208,17 +222,17 @@ export default function GroupChatScreen() {
             </TouchableOpacity>
 
             <TouchableOpacity
-              style={[styles.chatTab, !data.assignedOfUserId && styles.chatTabDisabled, activeTab === "assignedOf" && styles.chatTabActive]}
+              style={[styles.chatTab, data.status === "OPEN" && styles.chatTabDisabled, activeTab === "assignedOf" && styles.chatTabActive]}
               onPress={() => setActiveTab("assignedOf")}
-              disabled={!data.assignedOfUserId}
+              disabled={data.status === "OPEN"}
             >
               <Text style={[styles.chatTabText, activeTab === "assignedOf" && styles.chatTabTextActive]}>Quem me tirou</Text>
             </TouchableOpacity>
 
             <TouchableOpacity
-              style={[styles.chatTab, !data.assignedOfUserId && styles.chatTabDisabled, activeTab === "myAssigned" && styles.chatTabActive]}
+              style={[styles.chatTab, data.status === "OPEN" && styles.chatTabDisabled, activeTab === "myAssigned" && styles.chatTabActive]}
               onPress={() => setActiveTab("myAssigned")}
-              disabled={!data.myAssignedUserId}
+              disabled={data.status === "OPEN"}
             >
               <Text style={[styles.chatTabText, activeTab === "myAssigned" && styles.chatTabTextActive]}>Quem eu tirei</Text>
             </TouchableOpacity>
@@ -281,6 +295,7 @@ export default function GroupChatScreen() {
           onClose={() => setAdminDrawVisible(false)}
           status={data.status as GroupStatus}
           onConfirmDraw={handleConfirmDraw}
+          loading={isLoading}
         />
 
         <GroupQRCodeModal visible={qrCodeVisible} onClose={() => setQrCodeVisible(false)} group={data} />

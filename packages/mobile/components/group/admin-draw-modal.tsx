@@ -4,11 +4,12 @@ import { Modal, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 interface Props {
   visible: boolean;
   onClose: () => void;
+  loading?: boolean;
   status: "OPEN" | "CLOSED" | "DRAWN";
   onConfirmDraw: () => void;
 }
 
-export const AdminDrawModal: React.FC<Props> = ({ visible, onClose, status, onConfirmDraw }) => {
+export const AdminDrawModal: React.FC<Props> = ({ visible, onClose, status, onConfirmDraw, loading }) => {
   const isDrawn = status === "DRAWN";
 
   return (
@@ -27,8 +28,8 @@ export const AdminDrawModal: React.FC<Props> = ({ visible, onClose, status, onCo
             <TouchableOpacity style={styles.cancelButton} onPress={onClose}>
               <Text style={styles.cancelText}>Cancelar</Text>
             </TouchableOpacity>
-            <TouchableOpacity style={styles.confirmButton} onPress={onConfirmDraw}>
-              <Text style={styles.confirmText}>{isDrawn ? "Refazer sorteio" : "Sortear agora"}</Text>
+            <TouchableOpacity style={[styles.confirmButton, loading && styles.disabledButton]} disabled={loading} onPress={onConfirmDraw}>
+              <Text style={styles.confirmText}>{loading ? "Sorteando..." : isDrawn ? "Refazer sorteio" : "Sortear agora"}</Text>
             </TouchableOpacity>
           </View>
         </View>
@@ -82,5 +83,8 @@ const styles = StyleSheet.create({
   confirmText: {
     color: "#FFFFFF",
     fontWeight: "700",
+  },
+  disabledButton: {
+    opacity: 0.6,
   },
 });
