@@ -105,7 +105,7 @@ export default function CreateGroupScreen() {
         description: description || undefined,
         additionalInfo: additionalInfo || undefined,
         location: location || undefined,
-        eventDate,
+        eventDate: eventDate.toISOString(),
       });
 
       router.dismissAll();
