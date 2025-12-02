@@ -25,11 +25,8 @@ export default function GroupChatScreen() {
   const [activeTab, setActiveTab] = useState<"general" | "assignedOf" | "myAssigned">("general");
 
   const [myWishlist, setMyWishlist] = useState<WishlistItem[]>([]);
-  const [selectedMemberWishlist, setSelectedMemberWishlist] = useState<{
-    memberId: number;
-    name: string;
-    items: WishlistItem[];
-  } | null>(null);
+  const [wishlistVisible, setWishlistVisible] = useState(false);
+  const [selectedMemberWishlist, setSelectedMemberWishlist] = useState<number>(0);
 
   const flatListRef = useRef<FlatList>(null);
 
@@ -38,8 +35,8 @@ export default function GroupChatScreen() {
   const [membersVisible, setMembersVisible] = useState(false);
   const [myWishlistVisible, setMyWishlistVisible] = useState(false);
   const [adminDrawVisible, setAdminDrawVisible] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
   const [qrCodeVisible, setQrCodeVisible] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
   const messagesToRender =
     activeTab === "general"
@@ -104,14 +101,13 @@ export default function GroupChatScreen() {
     }
   };
 
-  const handleOpenMemberWishlist = async (memberId: number) => {
+  const handleMemberClick = async (memberId: number) => {
     try {
-      /*const res = await apiService.getMemberWishlist(numericGroupId, memberId);
-      setSelectedMemberWishlist({
-        memberId,
-        name: res.memberName,
-        items: res.items,
-      });*/
+      /*const res = await apiService.getMemberWishlist(numericGroupId, memberId);*/
+      console.log(memberId);
+      setSelectedMemberWishlist(memberId);
+      setMembersVisible(false);
+      setWishlistVisible(true);
     } catch (err) {
       console.error("Erro ao carregar wishlist de membro:", err);
     }
@@ -270,25 +266,10 @@ export default function GroupChatScreen() {
           members={data?.members}
           myMemberId={data.myMemberId}
           myAssignedUserId={data.myAssignedUserId}
-          onOpenMemberWishlist={handleOpenMemberWishlist}
+          onMemberClick={handleMemberClick}
         />
 
-        <WishlistModal
-          visible={myWishlistVisible}
-          onClose={() => setMyWishlistVisible(false)}
-          title="Minha lista de presentes"
-          canEdit
-          items={myWishlist}
-          onAddItem={handleAddWishlistItem}
-        />
-
-        <WishlistModal
-          visible={!!selectedMemberWishlist}
-          onClose={() => setSelectedMemberWishlist(null)}
-          title={selectedMemberWishlist ? `Lista de ${selectedMemberWishlist.name}` : ""}
-          canEdit={false}
-          items={selectedMemberWishlist?.items || []}
-        />
+        <WishlistModal visible={wishlistVisible} onClose={() => setWishlistVisible(false)} memberId={selectedMemberWishlist} />
 
         <AdminDrawModal
           visible={adminDrawVisible}

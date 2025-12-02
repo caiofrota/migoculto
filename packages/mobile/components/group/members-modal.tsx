@@ -15,10 +15,10 @@ interface Props {
   members: MemberWithWishlist[];
   myMemberId: number | null;
   myAssignedUserId: number | null;
-  onOpenMemberWishlist: (memberId: number) => void;
+  onMemberClick: (memberId: number) => void;
 }
 
-export const MembersModal: React.FC<Props> = ({ visible, onClose, members, myMemberId, myAssignedUserId, onOpenMemberWishlist }) => {
+export const MembersModal: React.FC<Props> = ({ visible, onClose, members, myMemberId, myAssignedUserId, onMemberClick }) => {
   const renderItem = ({ item }: { item: MemberWithWishlist }) => {
     const fullName = (item.firstName || "") + " " + (item.lastName || "");
 
@@ -26,7 +26,7 @@ export const MembersModal: React.FC<Props> = ({ visible, onClose, members, myMem
     const isMyAssigned = item.userId === myAssignedUserId;
 
     return (
-      <TouchableOpacity style={styles.row} onPress={() => onOpenMemberWishlist(item.id)} activeOpacity={0.8}>
+      <TouchableOpacity style={styles.row} onPress={() => onMemberClick(item.userId)} activeOpacity={0.8}>
         <View style={styles.avatar}>
           <Text style={styles.avatarText}>{(item.firstName?.[0] || "?").toUpperCase()}</Text>
         </View>

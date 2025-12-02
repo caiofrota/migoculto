@@ -12,8 +12,10 @@
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.cftechsol.migoculto",
+      "usesAppleSignIn": true,
       "infoPlist": {
-        "NSCameraUsageDescription": "Este aplicativo usa câmera para escanear QR codes para entrar em um grupo."
+        "NSCameraUsageDescription": "Este aplicativo usa câmera para escanear QR codes para entrar em um grupo.",
+        "ITSAppUsesNonExemptEncryption": false
       }
     },
     "android": {
@@ -25,7 +27,8 @@
       },
       "edgeToEdgeEnabled": true,
       "predictiveBackGestureEnabled": false,
-      "package": "com.cftechsol.migoculto"
+      "package": "com.cftechsol.migoculto",
+      "versionCode": 5
     },
     "web": {
       "output": "static",
@@ -50,7 +53,14 @@
           }
         }
       ],
-      "expo-secure-store"
+      [
+        "@react-native-google-signin/google-signin",
+        {
+          "iosUrlScheme": "com.googleusercontent.apps._some_id_here_"
+        }
+      ],
+      "expo-secure-store",
+      "expo-apple-authentication"
     ],
     "updates": {
       "url": "https://u.expo.dev/f954a9f2-1474-4fc1-b003-a0b90f54f4ee"

@@ -1,0 +1,52 @@
+{
+  "cli": {
+    "version": ">= 5.6.0",
+    "appVersionSource": "remote"
+  },
+  "build": {
+    "production": {
+      "channel": "production",
+      "autoIncrement": true,
+      "node": "20.19.4",
+      "yarn": "1.22.19",
+      "android": {
+        "image": "latest",
+        "env": {
+          "PLATFORM": "android"
+        }
+      },
+      "ios": {
+        "image": "latest",
+        "env": {
+          "PLATFORM": "ios"
+        }
+      },
+      "env": {
+        "EXPO_PUBLIC_SITE_URL": "https://migoculto.com.br",
+        "EXPO_PUBLIC_API_URL": "https://migoculto.com.br/api",
+        "EXPO_PUBLIC_URI_SCHEME": "migoculto://",
+        "EXPO_PUBLIC_APP_REVISION": "0",
+        "DATABASE_URL": "mysql://"
+      }
+    },
+    "staging": {
+      "extends": "production",
+      "distribution": "internal",
+      "channel": "staging"
+    },
+    "preview": {
+      "extends": "production",
+      "distribution": "internal",
+      "channel": "preview"
+    },
+    "development": {
+      "extends": "production",
+      "distribution": "internal",
+      "channel": "development",
+      "developmentClient": true
+    }
+  },
+  "submit": {
+    "production": {}
+  }
+}

@@ -1,5 +1,6 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { FlatList, Modal, StyleSheet, Text, TextInput, TouchableOpacity, View } from "react-native";
+import { useAuth, useGroupData } from "../provider";
 
 export interface WishlistItem {
   id: number;
@@ -10,18 +11,19 @@ export interface WishlistItem {
 }
 
 interface Props {
+  memberId: number;
   visible: boolean;
   onClose: () => void;
-  title: string;
-  canEdit: boolean;
-  items: WishlistItem[];
   onAddItem?: (item: Omit<WishlistItem, "id">) => void;
 }
 
-export const WishlistModal: React.FC<Props> = ({ visible, onClose, title, canEdit, items, onAddItem }) => {
+export const WishlistModal: React.FC<Props> = ({ memberId, visible, onClose, onAddItem }) => {
   const [name, setName] = useState("");
   const [url, setUrl] = useState("");
   const [description, setDescription] = useState("");
+  const { user } = useAuth();
+  const { data } = useGroupData(memberId);
+  const [member, setMember] = useState<{ id: number; firstName?: string | null; lastName?: string | null } | null>(null);
 
   const handleAdd = () => {
     if (!onAddItem || !name.trim()) return;
@@ -36,13 +38,24 @@ export const WishlistModal: React.FC<Props> = ({ visible, onClose, title, canEdi
     setDescription("");
   };
 
+  useEffect(() => {
+    if (data) {
+      console.log(data.members);
+      const member = data?.members.find((m) => m.userId === memberId);
+      console.log("member", member);
+      setMember(member || null);
+    }
+  }, [memberId, data]);
+
   return (
     <Modal visible={visible} transparent animationType="fade" onRequestClose={onClose}>
       <View style={styles.backdrop}>
         <View style={styles.box}>
-          <Text style={styles.title}>{title}</Text>
+          <Text style={styles.title}>
+            {member?.id === user?.id ? "Minha lista de presentes" : `Lista de ${member?.firstName} ${member?.lastName}`}
+          </Text>
 
-          {canEdit && (
+          {user?.id === memberId && (
             <View style={styles.form}>
               <TextInput
                 style={styles.input}
@@ -67,7 +80,7 @@ export const WishlistModal: React.FC<Props> = ({ visible, onClose, title, canEdi
           )}
 
           <FlatList
-            data={items}
+            data={[] as any}
             keyExtractor={(i) => String(i.id)}
             contentContainerStyle={styles.listContent}
             renderItem={({ item }) => (
