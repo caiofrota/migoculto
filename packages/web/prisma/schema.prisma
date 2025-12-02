@@ -25,6 +25,7 @@ model User {
   contactEmail String?   @map("contact_email")
   lastLoginAt  DateTime? @map("last_login_at")
   role         RoleEnum  @default(USER)
+  token        String?   @unique @map("token")
   createdAt    DateTime  @default(now()) @map("created_at")
   updatedAt    DateTime  @updatedAt @map("updated_at")
 
