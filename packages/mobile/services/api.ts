@@ -28,7 +28,7 @@ class CreateApiService {
       }
       return data;
     } catch (error) {
-      console.log(error);
+      console.log(JSON.stringify(error));
       throw error;
     }
   }
@@ -37,6 +37,16 @@ class CreateApiService {
     const data = await this.fetchOnce("/session", {
       method: "POST",
       body: JSON.stringify({ username, password }),
+    });
+    await saveTokens(data.access_token, data.refresh_token);
+    await this.me();
+    return data;
+  }
+
+  async loginWithApple(identityToken: string, givenName?: string, familyName?: string) {
+    const data = await this.fetchOnce("/session/apple", {
+      method: "POST",
+      body: JSON.stringify({ identityToken, givenName, familyName }),
     });
     await saveTokens(data.access_token, data.refresh_token);
     await this.me();
@@ -87,6 +97,14 @@ class CreateApiService {
         pushNotificationToken,
       }),
     });
+  }
+
+  async register(firstName: string, lastName: string, email: string, password: string) {
+    const data = await this.fetchOnce("/user", {
+      method: "POST",
+      body: JSON.stringify({ firstName, lastName, email, password }),
+    });
+    return data;
   }
 
   group = {

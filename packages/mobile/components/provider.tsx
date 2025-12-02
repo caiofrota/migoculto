@@ -16,6 +16,7 @@ type AppContextValue = {
   // Auth
   user: User | null;
   login: (email: string, password: string) => Promise<void>;
+  loginWithApple: (identityToken: string, givenName?: string, familyName?: string) => Promise<void>;
   logout: () => void;
   // Group cache
   groups: Group[] | null;
@@ -123,6 +124,21 @@ export function AppProvider({ children }: GroupsCacheProviderProps) {
     try {
       const loggedUser = await apiService.login(email, password);
       setUser(loggedUser);
+    } catch (err) {
+      console.log("myerror: ", JSON.stringify(err));
+      throw err;
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  async function loginWithApple(identityToken: string, givenName?: string, familyName?: string) {
+    setLoading(true);
+    try {
+      const loggedUser = await apiService.loginWithApple(identityToken, givenName, familyName);
+      setUser(loggedUser);
+    } catch (err) {
+      throw err;
     } finally {
       setLoading(false);
     }
@@ -168,6 +184,7 @@ export function AppProvider({ children }: GroupsCacheProviderProps) {
 
   const refreshGroups = useCallback(async () => {
     try {
+      if (user == null) return;
       const groups = await apiService.group.all();
       await Promise.all(
         groups.map(async (group) => {
@@ -186,7 +203,7 @@ export function AppProvider({ children }: GroupsCacheProviderProps) {
 
   useEffect(() => {
     (async () => {
-      AsyncStorage.clear();
+      //AsyncStorage.clear();
       const currentUser = await AsyncStorage.getItem(`${STORAGE_USER_PREFIX}`);
       if (currentUser) setUser(JSON.parse(currentUser));
       const storedGroups = await AsyncStorage.getItem(`${STORAGE_GROUP_PREFIX}all`);
@@ -217,7 +234,7 @@ export function AppProvider({ children }: GroupsCacheProviderProps) {
 
   if (showSplash) return <Text>Splash Screen</Text>;
   return (
-    <AppContext.Provider value={{ loading, user, login, logout, groups, setGroup, setGroupDetails, refreshGroup }}>
+    <AppContext.Provider value={{ loading, user, login, loginWithApple, logout, groups, setGroup, setGroupDetails, refreshGroup }}>
       {children}
     </AppContext.Provider>
   );
@@ -230,8 +247,8 @@ export function useAppContext() {
 }
 
 export function useAuth() {
-  const { loading, user, login, logout } = useAppContext();
-  return { loading, user, login, logout };
+  const { loading, user, login, loginWithApple, logout } = useAppContext();
+  return { loading, user, login, loginWithApple, logout };
 }
 
 export function useGroups() {
