@@ -1,8 +1,8 @@
 import bcrypt from "bcryptjs";
-import { prisma } from "lib/database";
 import { UnauthorizedError } from "errors";
-import { createAccessToken, createRefreshToken, getJwtPayload, getJwtPayloadFromCookies, verify } from "./jwt";
+import { prisma } from "lib/database";
 import { NextRequest } from "next/server";
+import { createAccessToken, createRefreshToken, getJwtPayload, getJwtPayloadFromCookies, verify } from "./jwt";
 
 async function getUser(params: { id: number } | { email: string }) {
   const user = await prisma.user.findUnique({ where: params });
@@ -23,6 +23,40 @@ async function getUser(params: { id: number } | { email: string }) {
   });
 }
 
+export async function getAppleUser(email: string, appleUserId: string, meta?: { givenName?: string; familyName?: string }) {
+  const user = await prisma.user.upsert({
+    where: { email },
+    update: {
+      lastLoginAt: new Date(),
+    },
+    create: {
+      appleId: appleUserId,
+      email: email,
+      firstName: meta?.givenName ?? email.split("@")[0],
+      lastName: meta?.familyName ?? "",
+      isActive: true,
+      password: await bcrypt.hash(Math.random().toString(36).slice(-8), 10),
+      lastLoginAt: new Date(),
+      role: "USER",
+    },
+  });
+  if (user) {
+    if (user.isActive) {
+      return user;
+    }
+    throw new UnauthorizedError({
+      message: "Conta de usuário inativa.",
+      action: "Por favor, entre em contato com o suporte para reativar sua conta.",
+      errorLocationCode: "SESSION:AUTHENTICATION:GET_APPLE_USER:USER_INACTIVE",
+    });
+  }
+  throw new UnauthorizedError({
+    message: "Usuário não encontrado.",
+    action: "Por favor, verifique o nome de usuário e tente novamente.",
+    errorLocationCode: "SESSION:AUTHENTICATION:GET_APPLE_USER:USER_NOT_FOUND",
+  });
+}
+
 async function comparePasswords(password: string, hashedPassword: string) {
   const match = await bcrypt.compare(password, hashedPassword);
   if (!match) {
@@ -36,9 +70,28 @@ async function comparePasswords(password: string, hashedPassword: string) {
 
 export async function authenticateWithCredentials(email: string, password: string) {
   const user = await getUser({ email });
+  if (!user.password) {
+    throw new UnauthorizedError({
+      message: "Senha não definida para este usuário.",
+      action: "Por favor, utilize outro método de autenticação.",
+      errorLocationCode: "SESSION:AUTHENTICATION:AUTHENTICATE_WITH_CREDENTIALS:PASSWORD_NOT_SET",
+    });
+  }
   await comparePasswords(password, user.password);
   return {
     accessToken: await createAccessToken({ sub: String(user.id), email, role: user.role }),
+    refreshToken: await createRefreshToken({ sub: String(user.id) }),
+  };
+}
+
+export async function authenticateWithApple(
+  email: string,
+  appleUserId: string,
+  meta?: { givenName: string | undefined; familyName: string | undefined },
+) {
+  const user = await getAppleUser(email, appleUserId, meta);
+  return {
+    accessToken: await createAccessToken({ sub: String(user.id), email: user.email || undefined, role: user.role }),
     refreshToken: await createRefreshToken({ sub: String(user.id) }),
   };
 }
@@ -48,7 +101,7 @@ export async function authenticateWithRefreshToken(refreshToken: string) {
     const { sub } = await verify(refreshToken);
     const user = await getUser({ id: Number(sub) });
     return {
-      accessToken: await createAccessToken({ sub: String(user.id), email: user.email, role: user.role }),
+      accessToken: await createAccessToken({ sub: String(user.id), email: user.email || undefined, role: user.role }),
       refreshToken: await createRefreshToken({ sub: String(user.id) }),
     };
   } catch (error) {

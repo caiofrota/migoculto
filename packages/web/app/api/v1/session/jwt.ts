@@ -3,7 +3,7 @@ import { JWTPayload, jwtVerify, SignJWT } from "jose";
 import { NextRequest } from "next/server";
 
 type SessionPayload = {
-  email: string;
+  email?: string;
   role: "ADMIN" | "USER";
 };
 
