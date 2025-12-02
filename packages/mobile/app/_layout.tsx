@@ -3,10 +3,28 @@ import { useColorScheme } from "@/hooks/use-color-scheme";
 import { DarkTheme, DefaultTheme, ThemeProvider } from "@react-navigation/native";
 import { Stack } from "expo-router";
 import { StatusBar } from "expo-status-bar";
+import * as Updates from "expo-updates";
+import { useEffect } from "react";
 import { KeyboardAvoidingView, Platform } from "react-native";
 import "react-native-reanimated";
 
 function RootNavigator() {
+  useEffect(() => {
+    async function updateApp() {
+      try {
+        const update = await Updates.checkForUpdateAsync();
+        if (update.isAvailable) {
+          await Updates.fetchUpdateAsync();
+          await Updates.reloadAsync();
+        }
+      } catch (e) {
+        console.log("Update check failed:", e);
+      }
+    }
+
+    updateApp();
+  }, []);
+
   const colorScheme = useColorScheme();
   const { user } = useAuth();
 
