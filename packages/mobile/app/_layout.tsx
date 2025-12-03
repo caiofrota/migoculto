@@ -1,4 +1,5 @@
 import { AppProvider, useAuth } from "@/components/provider";
+import { isDevClient, isExpoGo } from "@/core/utils";
 import { useColorScheme } from "@/hooks/use-color-scheme";
 import { DarkTheme, DefaultTheme, ThemeProvider } from "@react-navigation/native";
 import { Stack } from "expo-router";
@@ -10,6 +11,7 @@ import "react-native-reanimated";
 
 function RootNavigator() {
   useEffect(() => {
+    if (isExpoGo || isDevClient) return;
     async function updateApp() {
       try {
         const update = await Updates.checkForUpdateAsync();

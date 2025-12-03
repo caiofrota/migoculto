@@ -124,6 +124,7 @@ export function AppProvider({ children }: GroupsCacheProviderProps) {
     try {
       const loggedUser = await apiService.login(email, password);
       setUser(loggedUser);
+      refreshGroups();
     } catch (err) {
       console.log("myerror: ", JSON.stringify(err));
       throw err;
@@ -184,8 +185,14 @@ export function AppProvider({ children }: GroupsCacheProviderProps) {
 
   const refreshGroups = useCallback(async () => {
     try {
-      if (user == null) return;
+      const token = await getAccessToken();
+      if (!token) {
+        setGroups(null);
+        return;
+      }
+
       const groups = await apiService.group.all();
+
       await Promise.all(
         groups.map(async (group) => {
           const currentGroup = await AsyncStorage.getItem(`${STORAGE_GROUP_PREFIX}${group.id}`);
@@ -195,6 +202,7 @@ export function AppProvider({ children }: GroupsCacheProviderProps) {
           }
         }),
       );
+
       setGroups(groups.sort((a, b) => new Date(b.lastUpdate).getTime() - new Date(a.lastUpdate).getTime()));
     } catch (e) {
       console.warn("Erro ao buscar grupos no backend:", e);
@@ -203,7 +211,7 @@ export function AppProvider({ children }: GroupsCacheProviderProps) {
 
   useEffect(() => {
     (async () => {
-      //AsyncStorage.clear();
+      AsyncStorage.clear();
       const currentUser = await AsyncStorage.getItem(`${STORAGE_USER_PREFIX}`);
       if (currentUser) setUser(JSON.parse(currentUser));
       const storedGroups = await AsyncStorage.getItem(`${STORAGE_GROUP_PREFIX}all`);
