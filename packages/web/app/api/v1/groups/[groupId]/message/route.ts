@@ -1,6 +1,8 @@
 import { BaseError } from "errors";
 import { withErrorHandling } from "errors/handler";
+import { addDoc, collection } from "firebase/firestore";
 import { prisma } from "lib/database";
+import { firestore } from "lib/firebase";
 import { sendGroupMessageNotifications, sendInboxMessageNotifications } from "lib/notification";
 import { NextRequest, NextResponse } from "next/server";
 import z from "zod";
@@ -52,6 +54,10 @@ async function getGroupAvailableMessages(request: NextRequest, ctx: RouteContext
         .flat(),
     );
   }
+
+  const refreshCollection = collection(firestore, "refresh");
+  addDoc(refreshCollection, {});
+
   return NextResponse.json({
     message,
   });

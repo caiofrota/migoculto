@@ -1,6 +1,8 @@
 import { BaseError, ForbiddenError } from "errors";
 import { withErrorHandling } from "errors/handler";
+import { addDoc, collection } from "firebase/firestore";
 import { prisma } from "lib/database";
+import { firestore } from "lib/firebase";
 import { sendGroupDrawnNotifications } from "lib/notification";
 import { drawSecretFriends } from "model/group";
 import { NextRequest, NextResponse } from "next/server";
@@ -46,6 +48,8 @@ async function handlePost(request: NextRequest, ctx: RouteContext<"/api/v1/group
         .flat(),
     );
   }
+  const refreshCollection = collection(firestore, "refresh");
+  addDoc(refreshCollection, {});
 
   return NextResponse.json(updatedGroup, { status: 200 });
 }

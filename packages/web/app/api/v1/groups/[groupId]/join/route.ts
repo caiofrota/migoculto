@@ -1,5 +1,7 @@
 import { withErrorHandling } from "errors/handler";
+import { addDoc, collection } from "firebase/firestore";
 import { prisma } from "lib/database";
+import { firestore } from "lib/firebase";
 import { NextRequest, NextResponse } from "next/server";
 import z from "zod";
 import { getRequestUser } from "../../../session/authentication";
@@ -26,6 +28,9 @@ async function joinGroup(request: NextRequest, ctx: RouteContext<"/api/v1/groups
     },
   });
   const member = group.members.find((member) => member.userId === user.id)!;
+
+  const refreshCollection = collection(firestore, "refresh");
+  addDoc(refreshCollection, {});
 
   return NextResponse.json({
     id: member.groupId,
