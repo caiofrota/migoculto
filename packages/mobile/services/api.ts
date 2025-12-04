@@ -39,8 +39,7 @@ class CreateApiService {
       body: JSON.stringify({ username, password }),
     });
     await saveTokens(data.access_token, data.refresh_token);
-    await this.me();
-    return data;
+    return await this.me();
   }
 
   async loginWithApple(identityToken: string, givenName?: string, familyName?: string) {
@@ -137,6 +136,14 @@ class CreateApiService {
     },
   };
 
+  wishlist = {
+    addItem: async (groupId: number, name: string, url?: string, description?: string): Promise<any> => {
+      return await this.post<any>(`/groups/${groupId}/wishlist`, {
+        body: JSON.stringify({ name, url, description }),
+      });
+    },
+  };
+
   private async buildHeaders() {
     const token = await getAccessToken();
     const headers: Record<string, string> = {
@@ -227,6 +234,12 @@ export type Group = {
     lastName: string | null;
     isConfirmed: boolean;
     wishlistCount: number;
+    wishlist: {
+      id: number;
+      name: string;
+      url: string | null;
+      description: string | null;
+    }[];
   }[];
   lastMessage: {
     id: number;

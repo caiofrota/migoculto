@@ -40,7 +40,6 @@ export default function LoginScreen() {
       }
       await login(email.trim(), password);
     } catch (err: any) {
-      console.log("myerror: ", JSON.stringify(err));
       if (err instanceof CustomError) {
         setError([err.message, err.action].filter(Boolean).join(" "));
       } else {

@@ -1,3 +1,6 @@
+import { apiService } from "@/services/api";
+import { Ionicons } from "@expo/vector-icons";
+import { Link } from "expo-router";
 import React, { useEffect, useState } from "react";
 import { FlatList, Modal, StyleSheet, Text, TextInput, TouchableOpacity, View } from "react-native";
 import { useAuth, useGroupData } from "../provider";
@@ -11,38 +14,62 @@ export interface WishlistItem {
 }
 
 interface Props {
+  groupId: number;
   memberId: number;
   visible: boolean;
   onClose: () => void;
   onAddItem?: (item: Omit<WishlistItem, "id">) => void;
 }
 
-export const WishlistModal: React.FC<Props> = ({ memberId, visible, onClose, onAddItem }) => {
+export const WishlistModal: React.FC<Props> = ({ groupId, memberId, visible, onClose, onAddItem }) => {
   const [name, setName] = useState("");
   const [url, setUrl] = useState("");
   const [description, setDescription] = useState("");
   const { user } = useAuth();
-  const { data } = useGroupData(memberId);
+  const { data, setData } = useGroupData(groupId);
   const [member, setMember] = useState<{ id: number; firstName?: string | null; lastName?: string | null } | null>(null);
+  const [loading, setLoading] = useState(false);
 
-  const handleAdd = () => {
-    if (!onAddItem || !name.trim()) return;
-    onAddItem({
-      name: name.trim(),
-      url: url.trim() || null,
-      description: description.trim() || null,
-      priority: null,
-    });
-    setName("");
-    setUrl("");
-    setDescription("");
-  };
+  async function handleAdd() {
+    if (!name.trim()) return;
+    try {
+      setLoading(true);
+      await apiService.wishlist.addItem(data!.id, name.trim(), url.trim() || undefined, description.trim() || undefined);
+      setData((prev) => {
+        if (!prev) return prev;
+        return {
+          ...prev,
+          members: [
+            ...prev.members.map((m) => {
+              if (m.userId !== user!.id) return m;
+              return {
+                ...m,
+                wishlistCount: m.wishlistCount + 1,
+                wishlist: [
+                  ...m.wishlist,
+                  {
+                    id: Math.random(),
+                    name: name,
+                    url: url,
+                    description: description,
+                  },
+                ],
+              };
+            }),
+          ],
+        };
+      });
+      setName("");
+      setUrl("");
+      setDescription("");
+    } finally {
+      setLoading(false);
+    }
+  }
 
   useEffect(() => {
     if (data) {
-      console.log(data.members);
-      const member = data?.members.find((m) => m.userId === memberId);
-      console.log("member", member);
+      const member = data?.members.find((m) => m.id === memberId);
       setMember(member || null);
     }
   }, [memberId, data]);
@@ -55,7 +82,7 @@ export const WishlistModal: React.FC<Props> = ({ memberId, visible, onClose, onA
             {member?.id === user?.id ? "Minha lista de presentes" : `Lista de ${member?.firstName} ${member?.lastName}`}
           </Text>
 
-          {user?.id === memberId && (
+          {user?.id === member?.id && (
             <View style={styles.form}>
               <TextInput
                 style={styles.input}
@@ -73,25 +100,32 @@ export const WishlistModal: React.FC<Props> = ({ memberId, visible, onClose, onA
                 onChangeText={setDescription}
                 multiline
               />
-              <TouchableOpacity style={styles.addButton} onPress={handleAdd}>
-                <Text style={styles.addButtonText}>Adicionar</Text>
+              <TouchableOpacity style={[styles.addButton, loading && styles.buttonDisabled]} disabled={loading} onPress={handleAdd}>
+                <Text style={styles.addButtonText}>{loading ? "Adicionando..." : "Adicionar"}</Text>
               </TouchableOpacity>
             </View>
           )}
 
           <FlatList
-            data={[] as any}
+            data={data?.members?.find((m) => m.userId === memberId)?.wishlist ?? ([] as any)}
             keyExtractor={(i) => String(i.id)}
             contentContainerStyle={styles.listContent}
-            renderItem={({ item }) => (
+            renderItem={({ item, index }) => (
               <View style={styles.itemRow}>
-                <Text style={styles.itemName}>{item.name}</Text>
+                <View style={{ flexDirection: "row", alignItems: "center", gap: 10 }}>
+                  <Text style={styles.itemName}>{item.name}</Text>
+                  {item.url && (
+                    <Link
+                      href={["http://", "https://"].includes(item.url) ? item.url : `http://${item.url}`}
+                      target="_blank"
+                      style={styles.itemUrl}
+                      numberOfLines={1}
+                    >
+                      <Ionicons name="cart" size={20} color="#6EAD72" />
+                    </Link>
+                  )}
+                </View>
                 {item.description && <Text style={styles.itemText}>{item.description}</Text>}
-                {item.url && (
-                  <Text style={styles.itemUrl} numberOfLines={1}>
-                    {item.url}
-                  </Text>
-                )}
               </View>
             )}
             ListEmptyComponent={<Text style={styles.emptyText}>Nenhum item cadastrado ainda.</Text>}
@@ -153,6 +187,9 @@ const styles = StyleSheet.create({
   addButtonText: {
     color: "#FFFFFF",
     fontWeight: "700",
+  },
+  buttonDisabled: {
+    opacity: 0.6,
   },
   listContent: {
     paddingVertical: 6,

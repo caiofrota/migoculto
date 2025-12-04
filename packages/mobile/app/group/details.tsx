@@ -24,7 +24,6 @@ export default function GroupChatScreen() {
   const { data, setData, markAsRead } = useGroupData(groupId);
   const [activeTab, setActiveTab] = useState<"general" | "assignedOf" | "myAssigned">("general");
 
-  const [myWishlist, setMyWishlist] = useState<WishlistItem[]>([]);
   const [wishlistVisible, setWishlistVisible] = useState(false);
   const [selectedMemberWishlist, setSelectedMemberWishlist] = useState<number>(0);
 
@@ -33,7 +32,6 @@ export default function GroupChatScreen() {
   const [menuVisible, setMenuVisible] = useState(false);
   const [infoVisible, setInfoVisible] = useState(false);
   const [membersVisible, setMembersVisible] = useState(false);
-  const [myWishlistVisible, setMyWishlistVisible] = useState(false);
   const [adminDrawVisible, setAdminDrawVisible] = useState(false);
   const [qrCodeVisible, setQrCodeVisible] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -253,7 +251,7 @@ export default function GroupChatScreen() {
           status={data.status}
           onOpenInfo={() => setInfoVisible(true)}
           onOpenMembers={() => setMembersVisible(true)}
-          onOpenMyWishlist={() => setMyWishlistVisible(true)}
+          onOpenMyWishlist={() => handleMemberClick(data.myMemberId)}
           onQRCode={() => setQrCodeVisible(true)}
           onOpenAdminDraw={() => setAdminDrawVisible(true)}
         />
@@ -269,7 +267,12 @@ export default function GroupChatScreen() {
           onMemberClick={handleMemberClick}
         />
 
-        <WishlistModal visible={wishlistVisible} onClose={() => setWishlistVisible(false)} memberId={selectedMemberWishlist} />
+        <WishlistModal
+          visible={wishlistVisible}
+          onClose={() => setWishlistVisible(false)}
+          memberId={selectedMemberWishlist}
+          groupId={data.id}
+        />
 
         <AdminDrawModal
           visible={adminDrawVisible}
