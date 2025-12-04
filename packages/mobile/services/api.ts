@@ -18,7 +18,7 @@ function parseDeviceType(deviceType: Device.DeviceType | null) {
 }
 
 class CreateApiService {
-  private baseUrl: string = process.env.EXPO_PUBLIC_API_URL!;
+  private baseUrl: string = `${process.env.EXPO_PUBLIC_API_URL!}/v1`;
 
   private async handleResponse<T>(response: Response): Promise<T> {
     try {
