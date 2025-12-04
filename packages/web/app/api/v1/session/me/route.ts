@@ -8,35 +8,37 @@ async function handlePost(req: NextRequest) {
   const user = await getRequestUser(req);
   const body = await req.json();
   const data = schema.parse(body);
-  await prisma.device.upsert({
-    where: { pushNotificationToken: data.pushNotificationToken },
-    create: {
-      userId: user.id,
-      pushNotificationToken: data.pushNotificationToken,
-      platform: data.platform,
-      appVersion: data.appVersion,
-      runtimeVersion: data.runtimeVersion,
-      appRevision: data.appRevision,
-      deviceType: data.deviceType as any,
-      deviceName: data.deviceName,
-      osName: data.osName,
-      osVersion: data.osVersion,
-      platformVersion: data.platformVersion,
-    },
-    update: {
-      userId: user.id,
-      platform: data.platform,
-      appVersion: data.appVersion,
-      runtimeVersion: data.runtimeVersion,
-      appRevision: data.appRevision,
-      deviceType: data.deviceType as any,
-      deviceName: data.deviceName,
-      osName: data.osName,
-      osVersion: data.osVersion,
-      platformVersion: data.platformVersion,
-      updatedAt: new Date(),
-    },
-  });
+  if (data.pushNotificationToken) {
+    await prisma.device.upsert({
+      where: { pushNotificationToken: data.pushNotificationToken },
+      create: {
+        userId: user.id,
+        pushNotificationToken: data.pushNotificationToken,
+        platform: data.platform ?? "",
+        appVersion: data.appVersion || "",
+        runtimeVersion: data.runtimeVersion,
+        appRevision: data.appRevision,
+        deviceType: data.deviceType as any,
+        deviceName: data.deviceName,
+        osName: data.osName,
+        osVersion: data.osVersion,
+        platformVersion: String(data.platformVersion) || "",
+      },
+      update: {
+        userId: user.id,
+        platform: data.platform,
+        appVersion: data.appVersion,
+        runtimeVersion: data.runtimeVersion,
+        appRevision: data.appRevision,
+        deviceType: data.deviceType as any,
+        deviceName: data.deviceName,
+        osName: data.osName,
+        osVersion: data.osVersion,
+        platformVersion: String(data.platformVersion) || "",
+        updatedAt: new Date(),
+      },
+    });
+  }
   return NextResponse.json({
     id: user.id,
     firstName: user.firstName,
@@ -49,12 +51,12 @@ async function handlePost(req: NextRequest) {
 export const POST = await withErrorHandling(handlePost);
 
 const schema = z.object({
-  platform: z.string(),
-  platformVersion: z.string(),
-  runtimeVersion: z.string(),
-  appVersion: z.string(),
+  platform: z.string().optional(),
+  platformVersion: z.string().optional().or(z.coerce.number()),
+  runtimeVersion: z.string().optional(),
+  appVersion: z.string().optional(),
   appRevision: z.coerce.number().optional(),
-  pushNotificationToken: z.string().optional(),
+  pushNotificationToken: z.string().optional().nullable(),
   deviceType: z.string().optional(),
   deviceName: z.string().optional(),
   osName: z.string().optional(),
