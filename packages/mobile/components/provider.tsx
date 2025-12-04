@@ -1,9 +1,11 @@
+import { firestore } from "@/core/firebase";
 import { registerForPushNotificationsAsync } from "@/core/notifications";
 import { CustomError } from "@/errors";
 import { apiService, Group, GroupDetail, User } from "@/services/api";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { Text } from "@react-navigation/elements";
 import * as Notifications from "expo-notifications";
+import { collection, onSnapshot } from "firebase/firestore";
 import React, { createContext, ReactNode, useCallback, useContext, useEffect, useRef, useState } from "react";
 import { Alert, AppState, Linking } from "react-native";
 import { getAccessToken, setPushNotificationToken } from "../storage";
@@ -211,7 +213,7 @@ export function AppProvider({ children }: GroupsCacheProviderProps) {
 
   useEffect(() => {
     (async () => {
-      AsyncStorage.clear();
+      //AsyncStorage.clear();
       const currentUser = await AsyncStorage.getItem(`${STORAGE_USER_PREFIX}`);
       if (currentUser) setUser(JSON.parse(currentUser));
       const storedGroups = await AsyncStorage.getItem(`${STORAGE_GROUP_PREFIX}all`);
@@ -239,6 +241,21 @@ export function AppProvider({ children }: GroupsCacheProviderProps) {
 
     return () => sub.remove();
   }, [initializePushNotifications, refreshGroups, refreshUser]);
+
+  useEffect(() => {
+    const query = collection(firestore, "refresh");
+    const unsubscribe = onSnapshot(query, (_snapshot) => {
+      /* TODO: Implement handling of the snapshot data
+      const list: any = [];
+      snapshot.forEach((doc) => {
+        console.log(doc.id, "=>", doc.data());
+        list.push({ id: doc.id, ...doc.data() });
+      });*/
+      refreshGroups();
+    });
+
+    return () => unsubscribe();
+  }, [refreshGroups]);
 
   if (showSplash) return <Text>Splash Screen</Text>;
   return (
