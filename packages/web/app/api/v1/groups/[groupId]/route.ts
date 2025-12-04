@@ -11,7 +11,7 @@ async function handleGet(request: NextRequest, ctx: RouteContext<"/api/v1/groups
   const { groupId } = schema.parse(p);
 
   const group = await prisma.group.findUnique({
-    include: { members: { include: { user: { omit: { password: true, email: true } } } } },
+    include: { members: { include: { user: { omit: { password: true, email: true } } } }, wishlists: true },
     where: { id: groupId },
   });
   if (!group || !group.members.some((member) => member.userId === user?.id)) {
@@ -71,7 +71,17 @@ async function handleGet(request: NextRequest, ctx: RouteContext<"/api/v1/groups
       lastName: member.user.lastName,
       assignedUserId: group.status === "CLOSED" || user.id === member.userId ? member.assignedUserId : null,
       isConfirmed: member.isConfirmed,
-      wishlistCount: 0,
+      wishlistCount: group.wishlists.filter((w) => w.userId === member.userId).length,
+      wishlist: group.wishlists
+        .filter((w) => w.userId === member.userId)
+        .map((w) => ({
+          id: w.id,
+          name: w.name,
+          url: w.url,
+          description: w.description,
+          createdAt: w.createdAt,
+          updatedAt: w.updatedAt,
+        })),
     })),
     lastMessage: lastMessage
       ? {
