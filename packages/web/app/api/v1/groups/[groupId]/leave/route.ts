@@ -4,6 +4,7 @@ import { withErrorHandling } from "errors/handler";
 import { addDoc, collection } from "firebase/firestore";
 import { prisma } from "lib/database";
 import { firestore } from "lib/firebase";
+import { sendGroupLeavingNotifications } from "lib/notification";
 import { NextRequest, NextResponse } from "next/server";
 import z from "zod";
 import { getRequestUser } from "../../../session/authentication";
@@ -16,7 +17,7 @@ async function joinGroup(request: NextRequest, ctx: RouteContext<"/api/v1/groups
   const { groupId } = path.parse(pathParams);
 
   const existingMember = await prisma.member.findUnique({
-    include: { group: true },
+    include: { group: true, user: { select: { firstName: true, lastName: true } } },
     where: { groupAndUser: { groupId, userId: user.id } },
   });
   if (!existingMember) {
@@ -30,14 +31,12 @@ async function joinGroup(request: NextRequest, ctx: RouteContext<"/api/v1/groups
     throw new BaseError({
       name: "CannotLeaveClosedGroup",
       message: "Você não pode sair de um grupo fechado.",
-      action: "Por favor, entre em contato com o administrador do grupo para sair.",
     });
   }
   if (existingMember.group.ownerId === user.id) {
     throw new BaseError({
       name: "OwnerCannotLeaveGroup",
       message: "O proprietário do grupo não pode sair do grupo.",
-      action: "Por favor, transfira a propriedade do grupo antes de tentar sair.",
     });
   }
   await prisma.member.delete({ where: { id: existingMember.id } });
@@ -48,6 +47,16 @@ async function joinGroup(request: NextRequest, ctx: RouteContext<"/api/v1/groups
 
   const refreshCollection = collection(firestore, "refresh");
   addDoc(refreshCollection, {});
+
+  const to = (
+    await prisma.device.findMany({
+      where: { user: { groups: { some: { id: groupId } } } },
+    })
+  ).filter((device) => device.userId != user.id && device.pushNotificationToken);
+
+  if (to && to.length > 0) {
+    await sendGroupLeavingNotifications(existingMember.group, `${existingMember.user.firstName} ${existingMember.user.lastName}`, to);
+  }
 
   return NextResponse.json({});
 }
