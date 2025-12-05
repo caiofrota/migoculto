@@ -166,6 +166,9 @@ class CreateApiService {
         body: JSON.stringify({ name, url, description }),
       });
     },
+    removeItem: async (groupId: number, itemId: number): Promise<any> => {
+      return await this.delete<any>(`/groups/${groupId}/wishlist/remove/${itemId}`);
+    },
   };
 
   private async buildHeaders() {
