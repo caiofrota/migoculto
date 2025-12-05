@@ -34,7 +34,7 @@ export const GroupQRCodeModal: React.FC<Props> = ({ visible, onClose, group }) =
               </View>
             </View>
 
-            <QRCode value={`${process.env.EXPO_PUBLIC_URI_SCHEME}?action=join&code=${group.id}&password=${group.password}`} size={250} />
+            <QRCode value={`migoculto://?action=join&code=${group.id}&password=${group.password}`} size={250} />
 
             {group.location && (
               <>
