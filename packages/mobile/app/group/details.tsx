@@ -1,21 +1,12 @@
 import { ChatInputBar } from "@/components/chat/chat-input-bar";
 import { ChatMessage, ChatMessageBubble } from "@/components/chat/chat-message-bubble";
-import { AdminDrawModal } from "@/components/group/admin-draw-modal";
-import { GroupQRCodeModal } from "@/components/group/group-qrcode";
-import { GroupInfoModal } from "@/components/group/info-modal";
-import { MembersModal } from "@/components/group/members-modal";
-import { GroupMenuSheet } from "@/components/group/menu-sheet";
-import { WishlistItem, WishlistModal } from "@/components/group/wishlist-modal";
 import { useGroupData } from "@/components/provider";
-import { CustomError } from "@/errors";
 import { apiService } from "@/services/api";
 import { Ionicons } from "@expo/vector-icons";
 import { router, useLocalSearchParams } from "expo-router";
 import React, { useEffect, useRef, useState } from "react";
-import { ActivityIndicator, Alert, FlatList, KeyboardAvoidingView, Platform, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { ActivityIndicator, FlatList, KeyboardAvoidingView, Platform, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-
-type GroupStatus = "OPEN" | "CLOSED" | "DRAWN";
 
 export default function GroupChatScreen() {
   const { groupId } = useLocalSearchParams<{ groupId: string }>();
@@ -24,17 +15,7 @@ export default function GroupChatScreen() {
   const { data, setData, markAsRead } = useGroupData(groupId);
   const [activeTab, setActiveTab] = useState<"general" | "assignedOf" | "myAssigned">("general");
 
-  const [wishlistVisible, setWishlistVisible] = useState(false);
-  const [selectedMemberWishlist, setSelectedMemberWishlist] = useState<number>(0);
-
   const flatListRef = useRef<FlatList>(null);
-
-  const [menuVisible, setMenuVisible] = useState(false);
-  const [infoVisible, setInfoVisible] = useState(false);
-  const [membersVisible, setMembersVisible] = useState(false);
-  const [adminDrawVisible, setAdminDrawVisible] = useState(false);
-  const [qrCodeVisible, setQrCodeVisible] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
 
   const messagesToRender =
     activeTab === "general"
@@ -90,62 +71,6 @@ export default function GroupChatScreen() {
     return () => clearTimeout(timeout);
   }, [data?.lastMessageAt, markAsRead]);
 
-  const handleAddWishlistItem = async (payload: Omit<WishlistItem, "id">) => {
-    try {
-      /*const item = await apiService.addWishlistItem(numericGroupId, payload);
-      setMyWishlist((prev) => [...prev, item]);*/
-    } catch (err) {
-      console.error("Erro ao adicionar item:", err);
-    }
-  };
-
-  const handleMemberClick = async (memberId: number) => {
-    try {
-      /*const res = await apiService.getMemberWishlist(numericGroupId, memberId);*/
-      console.log(memberId);
-      setSelectedMemberWishlist(memberId);
-      setMembersVisible(false);
-      setWishlistVisible(true);
-    } catch (err) {
-      console.error("Erro ao carregar wishlist de membro:", err);
-    }
-  };
-
-  const handleConfirmDraw = async () => {
-    if (!data) return;
-    try {
-      setIsLoading(true);
-      const result = await apiService.group.draw(numericGroupId);
-      setAdminDrawVisible(false);
-      setData((prev) => ({
-        ...prev,
-        status: "DRAWN",
-        updatedAt: new Date().toISOString(),
-        myAssignedUserId: result.members.find((m: any) => m.userId === prev.userId)?.assignedUserId || null,
-        members: prev.members.map((member) => ({
-          ...member,
-          assignedUserId: result.members.find((m: any) => m.userId === member.userId)?.assignedUserId || null,
-        })),
-      }));
-      Alert.alert("Sorteio realizado", "O sorteio foi realizado com sucesso.");
-    } catch (error) {
-      setAdminDrawVisible(false);
-      let title = "Erro";
-      let message = "Ocorreu um erro ao sortear. Tente novamente mais tarde.";
-      if (error instanceof CustomError) {
-        if (error.type === "InsufficientMembersError") {
-          title = "Membros insuficientes";
-          message = "O mínimo de membros de 3 pessoas é necessário. Convide mais pessoas ao grupo e tente novamente.";
-        }
-      } else {
-        console.error("Erro ao sortear:", error);
-      }
-      Alert.alert(title, message);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
   const renderMessage = ({ item }: { item: ChatMessage }) => <ChatMessageBubble message={item} />;
 
   const handleSendInCurrentTab = (text: string) => {
@@ -178,10 +103,6 @@ export default function GroupChatScreen() {
               {data.status === "OPEN" ? "Em aberto" : data.status === "DRAWN" ? "Sorteio realizado" : "Encerrado"}
             </Text>
           </View>
-
-          <TouchableOpacity onPress={() => setMenuVisible(true)} style={styles.headerMenuButton}>
-            <Ionicons name="ellipsis-vertical" size={20} color="#FFE6D5" />
-          </TouchableOpacity>
         </View>
 
         <View style={styles.banner}>
@@ -243,46 +164,6 @@ export default function GroupChatScreen() {
             }
           />
         </View>
-
-        <GroupMenuSheet
-          visible={menuVisible}
-          onClose={() => setMenuVisible(false)}
-          isAdmin={data.isOwner}
-          status={data.status}
-          onOpenInfo={() => setInfoVisible(true)}
-          onOpenMembers={() => setMembersVisible(true)}
-          onOpenMyWishlist={() => handleMemberClick(data.myMemberId)}
-          onQRCode={() => setQrCodeVisible(true)}
-          onOpenAdminDraw={() => setAdminDrawVisible(true)}
-        />
-
-        <GroupInfoModal visible={infoVisible} onClose={() => setInfoVisible(false)} group={data} />
-
-        <MembersModal
-          visible={membersVisible}
-          onClose={() => setMembersVisible(false)}
-          members={data?.members}
-          myMemberId={data.myMemberId}
-          myAssignedUserId={data.myAssignedUserId}
-          onMemberClick={handleMemberClick}
-        />
-
-        <WishlistModal
-          visible={wishlistVisible}
-          onClose={() => setWishlistVisible(false)}
-          memberId={selectedMemberWishlist}
-          groupId={data.id}
-        />
-
-        <AdminDrawModal
-          visible={adminDrawVisible}
-          onClose={() => setAdminDrawVisible(false)}
-          status={data.status as GroupStatus}
-          onConfirmDraw={handleConfirmDraw}
-          loading={isLoading}
-        />
-
-        <GroupQRCodeModal visible={qrCodeVisible} onClose={() => setQrCodeVisible(false)} group={data} />
       </SafeAreaView>
     </KeyboardAvoidingView>
   );
@@ -321,10 +202,6 @@ const styles = StyleSheet.create({
   groupSubtitle: {
     fontSize: 13,
     color: "#FFE6D5",
-  },
-  headerMenuButton: {
-    padding: 6,
-    marginLeft: 4,
   },
   banner: {
     marginHorizontal: 10,
