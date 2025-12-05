@@ -134,6 +134,9 @@ class CreateApiService {
     draw: async (groupId: number): Promise<any> => {
       return await this.post<any>(`/groups/${groupId}/draw`);
     },
+    leave: async (groupId: number): Promise<any> => {
+      return await this.post<any>(`/groups/${groupId}/leave`);
+    },
   };
 
   wishlist = {

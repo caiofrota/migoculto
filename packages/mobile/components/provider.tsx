@@ -25,6 +25,7 @@ type AppContextValue = {
   setGroup: (groupId: string | number, data: GroupDetail) => Promise<void>;
   setGroupDetails: (groupId: string | number, data: GroupDetail) => Promise<void>;
   refreshGroup: (groupId: string | number) => Promise<GroupDetail | null>;
+  removeGroup: (groupId: string | number) => Promise<void>;
 };
 
 const AppContext = createContext<AppContextValue | null>(null);
@@ -185,6 +186,22 @@ export function AppProvider({ children }: GroupsCacheProviderProps) {
     }
   }
 
+  async function removeGroup(groupId: string | number) {
+    const key = String(groupId);
+
+    setGroups((prevGroups) => {
+      if (!prevGroups) return null;
+      const updatedGroups = prevGroups.filter((group) => group.id !== Number(groupId));
+      return updatedGroups;
+    });
+
+    try {
+      await AsyncStorage.removeItem(`${STORAGE_GROUP_PREFIX}${key}`);
+    } catch (e) {
+      console.warn("Erro ao remover grupo do AsyncStorage:", e);
+    }
+  }
+
   const refreshGroups = useCallback(async () => {
     try {
       const token = await getAccessToken();
@@ -259,7 +276,9 @@ export function AppProvider({ children }: GroupsCacheProviderProps) {
 
   if (showSplash) return <Text>Splash Screen</Text>;
   return (
-    <AppContext.Provider value={{ loading, user, login, loginWithApple, logout, groups, setGroup, setGroupDetails, refreshGroup }}>
+    <AppContext.Provider
+      value={{ loading, user, login, loginWithApple, logout, groups, setGroup, setGroupDetails, refreshGroup, removeGroup }}
+    >
       {children}
     </AppContext.Provider>
   );
@@ -277,8 +296,8 @@ export function useAuth() {
 }
 
 export function useGroups() {
-  const { groups, setGroup, setGroupDetails, refreshGroup } = useAppContext();
-  return { groups, setGroup, setGroupDetails, refreshGroup };
+  const { groups, setGroup, setGroupDetails, refreshGroup, removeGroup } = useAppContext();
+  return { groups, setGroup, setGroupDetails, refreshGroup, removeGroup };
 }
 
 export function useGroupData(groupId: string | number) {

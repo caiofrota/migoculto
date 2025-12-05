@@ -40,6 +40,7 @@ function RootNavigator() {
         <Stack.Protected guard={!!user}>
           <Stack.Screen name="index" options={{ headerShown: false }} />
           <Stack.Screen name="create-group" options={{ headerShown: false }} />
+          <Stack.Screen name="group/info" options={{ headerShown: false }} />
           <Stack.Screen name="group/details" options={{ headerShown: false }} />
         </Stack.Protected>
         <Stack.Screen name="modal" options={{ presentation: "modal", title: "Modal" }} />

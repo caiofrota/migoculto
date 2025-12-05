@@ -47,7 +47,7 @@ export const GroupsScreen = () => {
   }, [activeGroups, filter]);
 
   const handleOpenGroup = (id: number) => {
-    router.push(`/group/details?groupId=${id}`);
+    router.push(`/group/info?groupId=${id}`);
   };
 
   const handleCreateGroup = () => {
