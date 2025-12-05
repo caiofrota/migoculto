@@ -24,7 +24,7 @@ async function createUser(req: NextRequest) {
         lastName: body.lastName,
         email: email,
         password: await bcrypt.hash(password, 10),
-        isActive: false,
+        isActive: true,
         role: "USER",
         lastLoginAt: new Date(),
         token: Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15),
