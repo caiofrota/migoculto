@@ -113,6 +113,14 @@ class CreateApiService {
     return data;
   }
 
+  async forgotPassword(email: string) {
+    const data = await this.fetchOnce("/user/forgot-password", {
+      method: "POST",
+      body: JSON.stringify({ email }),
+    });
+    return data;
+  }
+
   group = {
     all: async (): Promise<Group[]> => {
       return await this.get<Group[]>("/groups");

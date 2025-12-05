@@ -75,6 +75,10 @@ export default function LoginScreen() {
     }
   }
 */
+  function handleGoToForgotPassword() {
+    router.push("/forgot-password");
+  }
+
   function handleGoToRegister() {
     router.push("/register");
   }
@@ -143,6 +147,12 @@ export default function LoginScreen() {
         )}
       </View>
       */}
+      <View style={styles.registerContainer}>
+        <Text style={styles.registerText}>Esqueceu sua senha? </Text>
+        <TouchableOpacity onPress={handleGoToForgotPassword}>
+          <Text style={styles.registerLink}>Recuperar senha</Text>
+        </TouchableOpacity>
+      </View>
       <View style={styles.registerContainer}>
         <Text style={styles.registerText}>Ainda não tem uma conta? </Text>
         <TouchableOpacity onPress={handleGoToRegister}>

@@ -36,6 +36,7 @@ function RootNavigator() {
         <Stack.Protected guard={!user}>
           <Stack.Screen name="login" options={{ headerShown: false }} />
           <Stack.Screen name="register" options={{ headerShown: false }} />
+          <Stack.Screen name="forgot-password" options={{ headerShown: false }} />
         </Stack.Protected>
         <Stack.Protected guard={!!user}>
           <Stack.Screen name="index" options={{ headerShown: false }} />
