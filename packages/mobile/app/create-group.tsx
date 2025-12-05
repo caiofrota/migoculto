@@ -1,4 +1,5 @@
 // src/screens/CreateGroupScreen.tsx
+import { useAuth, useGroups } from "@/components/provider";
 import { apiService } from "@/services/api";
 import { Ionicons } from "@expo/vector-icons";
 import DateTimePicker, { DateTimePickerAndroid } from "@react-native-community/datetimepicker";
@@ -20,6 +21,8 @@ import { SafeAreaView } from "react-native-safe-area-context";
 export default function CreateGroupScreen() {
   const colorScheme = useColorScheme();
   const isDark = colorScheme === "dark";
+  const { user } = useAuth();
+  const { setGroupDetails, refreshGroup } = useGroups();
 
   const [name, setName] = useState("");
   const [password, setPassword] = useState("");
@@ -99,7 +102,7 @@ export default function CreateGroupScreen() {
 
   const handleCreate = async () => {
     try {
-      await apiService.group.create({
+      const group = await apiService.group.create({
         name,
         password,
         description: description || undefined,
@@ -107,7 +110,36 @@ export default function CreateGroupScreen() {
         location: location || undefined,
         eventDate: eventDate.toISOString(),
       });
+      console.log(group);
 
+      setGroupDetails(group.id, {
+        ...group,
+        isOwner: true,
+        myMemberId: user!.id,
+        unreadCount: 0,
+        lastUpdate: new Date().toISOString(),
+        archivedAt: null,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+        lastMessageAt: null,
+        myAssignedUserId: null,
+        assignedOfUserId: undefined,
+        members: [],
+        lastMessage: null,
+        groupMessages: [],
+        isConfirmed: false,
+        lastReadAt: null,
+        messagesAsGiftReceiver: [],
+        messagesAsGiftSender: [],
+        ownerId: user!.id,
+        status: "OPEN",
+        userId: user!.id,
+        additionalInfo: group.additionalInfo || null,
+        description: group.description || null,
+        location: group.location || null,
+      });
+
+      refreshGroup(group.id);
       router.dismissAll();
       router.replace("/");
     } catch (error) {
