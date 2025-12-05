@@ -74,8 +74,24 @@ export const GroupsScreen = () => {
     router.push(`/group/details?groupId=${groupId}`);
   };
 
+  function parseDeepLink(url: string) {
+    try {
+      const parsed = new URL(url);
+
+      const action = parsed.searchParams.get("action");
+      const code = parsed.searchParams.get("code");
+      const password = parsed.searchParams.get("password");
+
+      return { action, code, password };
+    } catch (err) {
+      console.error("Invalid URL:", url, err);
+      return null;
+    }
+  }
+
   const handleCodeScanned = (data: string) => {
-    setScannedData(data);
+    const result = parseDeepLink(data);
+    setScannedData(result?.action === "join" ? JSON.stringify({ groupCode: result.code, password: result.password }) : data);
     setIsJoinModalOpen(true);
   };
 
