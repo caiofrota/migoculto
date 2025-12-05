@@ -1,4 +1,3 @@
-import { BaseError } from "errors";
 import { withErrorHandling } from "errors/handler";
 import { addDoc, collection } from "firebase/firestore";
 import { prisma } from "lib/database";
@@ -6,36 +5,16 @@ import { firestore } from "lib/firebase";
 import { sendWishlistUpdateNotifications } from "lib/notification";
 import { NextRequest, NextResponse } from "next/server";
 import z from "zod";
-import { getRequestUser } from "../../../session/authentication";
+import { getRequestUser } from "../../../../../session/authentication";
 
-export const POST = await withErrorHandling(createWishlistItem);
+export const DELETE = await withErrorHandling(deleteWishlistItem);
 
-async function createWishlistItem(request: NextRequest, ctx: RouteContext<"/api/v1/groups/[groupId]/leave">) {
+async function deleteWishlistItem(request: NextRequest, ctx: RouteContext<"/api/v1/groups/[groupId]/wishlist/remove/[itemId]">) {
   const user = await getRequestUser(request);
   const pathParams = await ctx.params;
-  const { groupId } = path.parse(pathParams);
-  const { name, url, description } = body.parse(await request.json());
+  const { groupId, itemId } = path.parse(pathParams);
 
-  const existingMember = await prisma.member.findUnique({
-    include: { group: true },
-    where: { groupAndUser: { groupId, userId: user.id } },
-  });
-  if (!existingMember) {
-    throw new BaseError({
-      name: "NotAMember",
-      message: "Você não é membro deste grupo.",
-      action: "Por favor, verifique se você já está no grupo antes de tentar adicionar itens à lista de desejos.",
-    });
-  }
-  await prisma.wishlist.create({
-    data: {
-      userId: user.id,
-      groupId,
-      name,
-      url,
-      description,
-    },
-  });
+  await prisma.wishlist.delete({ where: { id: itemId, userId: user.id, groupId } });
   const group = await prisma.group.update({
     include: { members: { include: { user: { include: { devices: true } } } } },
     where: { id: groupId },
@@ -58,10 +37,5 @@ async function createWishlistItem(request: NextRequest, ctx: RouteContext<"/api/
 
 const path = z.object({
   groupId: z.coerce.number(),
-});
-
-const body = z.object({
-  name: z.string(),
-  url: z.string().optional(),
-  description: z.string().optional(),
+  itemId: z.coerce.number(),
 });
