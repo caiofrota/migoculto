@@ -33,7 +33,7 @@ async function joinGroup(request: NextRequest, ctx: RouteContext<"/api/v1/groups
       action: "Por favor, entre em contato com o administrador do grupo para sair.",
     });
   }
-  if (existingMember.group.ownerId !== user.id) {
+  if (existingMember.group.ownerId === user.id) {
     throw new BaseError({
       name: "OwnerCannotLeaveGroup",
       message: "O proprietário do grupo não pode sair do grupo.",
