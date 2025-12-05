@@ -18,16 +18,15 @@ interface Props {
   memberId: number;
   visible: boolean;
   onClose: () => void;
-  onAddItem?: (item: Omit<WishlistItem, "id">) => void;
 }
 
-export const WishlistModal: React.FC<Props> = ({ groupId, memberId, visible, onClose, onAddItem }) => {
+export const WishlistModal: React.FC<Props> = ({ groupId, memberId, visible, onClose }) => {
   const [name, setName] = useState("");
   const [url, setUrl] = useState("");
   const [description, setDescription] = useState("");
   const { user } = useAuth();
-  const { data, setData } = useGroupData(groupId);
-  const [member, setMember] = useState<{ id: number; firstName?: string | null; lastName?: string | null } | null>(null);
+  const { data, setData, refresh } = useGroupData(groupId);
+  const [member, setMember] = useState<{ id: number; userId: number; firstName?: string | null; lastName?: string | null } | null>(null);
   const [loading, setLoading] = useState(false);
 
   async function handleAdd() {
@@ -46,7 +45,7 @@ export const WishlistModal: React.FC<Props> = ({ groupId, memberId, visible, onC
                 ...m,
                 wishlistCount: m.wishlistCount + 1,
                 wishlist: [
-                  ...m.wishlist,
+                  ...(m.wishlist ? m.wishlist : []),
                   {
                     id: Math.random(),
                     name: name,
@@ -62,6 +61,7 @@ export const WishlistModal: React.FC<Props> = ({ groupId, memberId, visible, onC
       setName("");
       setUrl("");
       setDescription("");
+      refresh();
     } finally {
       setLoading(false);
     }
@@ -79,10 +79,10 @@ export const WishlistModal: React.FC<Props> = ({ groupId, memberId, visible, onC
       <View style={styles.backdrop}>
         <View style={styles.box}>
           <Text style={styles.title}>
-            {member?.id === user?.id ? "Minha lista de presentes" : `Lista de ${member?.firstName} ${member?.lastName}`}
+            {member?.userId === user?.id ? "Minha lista de presentes" : `Lista de ${member?.firstName} ${member?.lastName}`}
           </Text>
 
-          {user?.id === member?.id && (
+          {user?.id === member?.userId && (
             <View style={styles.form}>
               <TextInput
                 style={styles.input}
@@ -107,7 +107,7 @@ export const WishlistModal: React.FC<Props> = ({ groupId, memberId, visible, onC
           )}
 
           <FlatList
-            data={data?.members?.find((m) => m.userId === memberId)?.wishlist ?? ([] as any)}
+            data={data?.members?.find((m) => m.id === memberId)?.wishlist ?? ([] as any)}
             keyExtractor={(i) => String(i.id)}
             contentContainerStyle={styles.listContent}
             renderItem={({ item, index }) => (
