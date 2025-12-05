@@ -292,7 +292,7 @@ export default function GroupInfo() {
                   </Text>
                   <Text style={styles.memberWishlistCount}>Itens na lista de desejos: {member.wishlistCount}</Text>
                 </View>
-                {data.isOwner && data.status === "OPEN" && (
+                {data.isOwner && data.status === "OPEN" && member.userId !== data.ownerId && (
                   <TouchableOpacity onPress={() => removeMember(member.id)}>
                     <Ionicons name="trash" size={20} color="#FFFFFF" />
                   </TouchableOpacity>
