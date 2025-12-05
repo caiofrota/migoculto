@@ -1,16 +1,22 @@
 import bcrypt from "bcryptjs";
 import { UnauthorizedError } from "errors";
 import { withErrorHandling } from "errors/handler";
+import { addDoc, collection } from "firebase/firestore";
 import { prisma } from "lib/database";
+import { firestore } from "lib/firebase";
 import { mailer } from "lib/mailer";
 import { NextRequest, NextResponse } from "next/server";
 import z from "zod";
+import { getRequestUser } from "../session/authentication";
 
-async function handlePost(req: NextRequest) {
+export const POST = await withErrorHandling(createUser);
+export const PUT = await withErrorHandling(updateUser);
+
+async function createUser(req: NextRequest) {
   const startMs = Date.now();
   try {
     const body = await req.json();
-    const { email, password } = schema.parse(body);
+    const { email, password } = createSchema.parse(body);
 
     const user = await prisma.user.create({
       data: {
@@ -53,9 +59,38 @@ async function handlePost(req: NextRequest) {
   }
 }
 
-export const POST = await withErrorHandling(handlePost);
+async function updateUser(request: NextRequest) {
+  const sessionUser = await getRequestUser(request);
+  const body = await request.json();
+  const { firstName, lastName } = updateSchema.parse(body);
 
-const schema = z.object({
+  await prisma.user.update({
+    select: { id: true, email: true, firstName: true, lastName: true, isActive: true },
+    where: { id: sessionUser.id },
+    data: {
+      firstName: firstName,
+      lastName: lastName,
+      groups: {
+        updateMany: {
+          where: {},
+          data: { updatedAt: new Date() },
+        },
+      },
+    },
+  });
+
+  const refreshCollection = collection(firestore, "refresh");
+  addDoc(refreshCollection, {});
+
+  return NextResponse.json({}, { status: 200 });
+}
+
+const updateSchema = z.object({
+  firstName: z.string().nonempty(),
+  lastName: z.string().optional(),
+});
+
+const createSchema = z.object({
   email: z.email().nonempty(),
   password: z.string().nonempty(),
   firstName: z.string().nonempty(),
