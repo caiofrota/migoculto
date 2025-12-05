@@ -36,7 +36,7 @@ async function createUser(req: NextRequest) {
     const mailResponse = await mailer.sendMail({
       from: process.env.SMTP_FROM_EMAIL,
       to: email,
-      subject: "Ative sua conta",
+      subject: "MigOculto - Ative sua conta",
       text: `Clique no link para ativar sua conta: ${activationLink}`,
       html: `<p>Clique no link para ativar sua conta: <a href="${activationLink}">${activationLink}</a></p>`,
     });
