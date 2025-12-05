@@ -1,8 +1,7 @@
 import { apiService } from "@/services/api";
 import { Ionicons } from "@expo/vector-icons";
-import { Link } from "expo-router";
 import React, { useEffect, useState } from "react";
-import { FlatList, Modal, StyleSheet, Text, TextInput, TouchableOpacity, View } from "react-native";
+import { Alert, FlatList, Linking, Modal, StyleSheet, Text, TextInput, TouchableOpacity, View } from "react-native";
 import { useAuth, useGroupData } from "../provider";
 
 export interface WishlistItem {
@@ -61,9 +60,51 @@ export const WishlistModal: React.FC<Props> = ({ groupId, memberId, visible, onC
       setName("");
       setUrl("");
       setDescription("");
-      refresh();
+      setTimeout(refresh, 5000);
     } finally {
       setLoading(false);
+    }
+  }
+
+  function handleRemove(itemId: number) {
+    Alert.alert("Remover item", "Tem certeza que deseja remover este item da lista de desejos?", [
+      { text: "Cancelar", style: "cancel" },
+      {
+        text: "Remover",
+        style: "destructive",
+        onPress: async () => await removeItem(itemId),
+      },
+    ]);
+  }
+
+  async function removeItem(itemId: number) {
+    try {
+      setData((prev) => {
+        if (!prev) return prev;
+        return {
+          ...prev,
+          members: [
+            ...prev.members.map((m) => {
+              if (m.userId !== user!.id) return m;
+              return {
+                ...m,
+                wishlistCount: m.wishlistCount - 1,
+                wishlist: m.wishlist.filter((i) => i.id !== itemId),
+              };
+            }),
+          ],
+        };
+      });
+      await apiService.wishlist.removeItem(data!.id, itemId);
+    } finally {
+      refresh();
+    }
+  }
+
+  function openUrl(url: string | null | undefined) {
+    if (url) {
+      const fullUrl = ["http://", "https://"].includes(url) ? url : `http://${url}`;
+      Linking.openURL(fullUrl);
     }
   }
 
@@ -111,22 +152,20 @@ export const WishlistModal: React.FC<Props> = ({ groupId, memberId, visible, onC
             keyExtractor={(i) => String(i.id)}
             contentContainerStyle={styles.listContent}
             renderItem={({ item, index }) => (
-              <View style={styles.itemRow}>
-                <View style={{ flexDirection: "row", alignItems: "center", gap: 10 }}>
-                  <Text style={styles.itemName}>{item.name}</Text>
-                  {item.url && (
-                    <Link
-                      href={["http://", "https://"].includes(item.url) ? item.url : `http://${item.url}`}
-                      target="_blank"
-                      style={styles.itemUrl}
-                      numberOfLines={1}
-                    >
-                      <Ionicons name="cart" size={20} color="#6EAD72" />
-                    </Link>
-                  )}
+              <TouchableOpacity style={styles.itemRow} onPress={() => openUrl(item.url)}>
+                <View>
+                  <View style={{ flexDirection: "row", alignItems: "center", gap: 10 }}>
+                    <Text style={styles.itemName}>{item.name}</Text>
+                    {item.url && <Ionicons name="cart" size={20} color="#6EAD72" />}
+                  </View>
+                  {item.description && <Text style={styles.itemText}>{item.description}</Text>}
                 </View>
-                {item.description && <Text style={styles.itemText}>{item.description}</Text>}
-              </View>
+                {user?.id === member?.userId && (
+                  <TouchableOpacity onPress={() => handleRemove(item.id)}>
+                    <Ionicons name="trash" size={20} color="#FFFFFF" />
+                  </TouchableOpacity>
+                )}
+              </TouchableOpacity>
             )}
             ListEmptyComponent={<Text style={styles.emptyText}>Nenhum item cadastrado ainda.</Text>}
           />
@@ -195,9 +234,15 @@ const styles = StyleSheet.create({
     paddingVertical: 6,
   },
   itemRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
     paddingVertical: 8,
     borderBottomWidth: 1,
     borderBottomColor: "rgba(255,255,255,0.06)",
+  },
+  itemContent: {
+    paddingVertical: 8,
   },
   itemName: {
     color: "#FFFFFF",
