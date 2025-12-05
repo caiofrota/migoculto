@@ -106,6 +106,13 @@ class CreateApiService {
     return data;
   }
 
+  async editProfile(firstName: string, lastName: string) {
+    const data = await this.put<User>("/user", {
+      body: JSON.stringify({ firstName, lastName }),
+    });
+    return data;
+  }
+
   group = {
     all: async (): Promise<Group[]> => {
       return await this.get<Group[]>("/groups");

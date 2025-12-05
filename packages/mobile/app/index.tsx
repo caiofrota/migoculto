@@ -6,19 +6,20 @@ import { Group } from "@/services/api";
 import { Ionicons } from "@expo/vector-icons";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import React, { useEffect, useMemo, useState } from "react";
-import { FlatList, StatusBar, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { Alert, FlatList, Modal, StatusBar, StyleSheet, Text, TouchableOpacity, TouchableWithoutFeedback, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 type Filter = "all" | "owner" | "participant";
 
 export const GroupsScreen = () => {
-  const { logout } = useAuth();
   const { action, code, password } = useLocalSearchParams<{ action?: string; code?: string; password?: string }>();
+
+  const { logout } = useAuth();
+  const { groups } = useGroups();
   const router = useRouter();
   const [filter, setFilter] = useState<Filter>("all");
   const [showArchived, setShowArchived] = useState<boolean>(false);
-
-  const { groups } = useGroups();
+  const [menuVisible, setMenuVisible] = useState<boolean>(false);
 
   const [isActionSheetOpen, setIsActionSheetOpen] = useState(false);
   const [isJoinModalOpen, setIsJoinModalOpen] = useState(false);
@@ -108,6 +109,24 @@ export const GroupsScreen = () => {
     }
   }
 
+  function editProfile() {
+    setMenuVisible(false);
+    router.push("/profile");
+  }
+
+  function handleLogout() {
+    Alert.alert("Sair", "Tem certeza que deseja sair do aplicativo?", [
+      { text: "Cancelar", style: "cancel" },
+      {
+        text: "Sair",
+        style: "destructive",
+        onPress: () => {
+          logout();
+        },
+      },
+    ]);
+  }
+
   useEffect(() => {
     if (action === "join") {
       setScannedData(JSON.stringify({ groupCode: code, password }));
@@ -161,7 +180,10 @@ export const GroupsScreen = () => {
           <Text style={styles.appTitle}>MigOculto</Text>
           <Text style={styles.appSubtitle}>Seus grupos de amigo secreto</Text>
         </View>
-        <Ionicons name="exit" size={26} color="#FFE6D5" onPress={logout} />
+
+        <TouchableOpacity onPress={() => setMenuVisible(true)} style={styles.headerMenuButton}>
+          <Ionicons name="ellipsis-vertical" size={20} color="#FFE6D5" />
+        </TouchableOpacity>
       </View>
       <View style={styles.filterContainer}>
         <FilterPill label="Todos" selected={filter === "all"} onPress={() => setFilter("all")} />
@@ -220,6 +242,24 @@ export const GroupsScreen = () => {
         scannedData={scannedData}
       />
 
+      <Modal visible={menuVisible} transparent animationType="fade" onRequestClose={() => setMenuVisible(false)}>
+        <TouchableWithoutFeedback onPress={() => setMenuVisible(false)}>
+          <View style={styles.backdrop}>
+            <TouchableWithoutFeedback>
+              <View style={styles.sheet}>
+                <Text style={styles.title}>Opções</Text>
+                <TouchableOpacity style={styles.item} onPress={editProfile}>
+                  <Text style={styles.itemText}>Editar perfil</Text>
+                </TouchableOpacity>
+
+                <TouchableOpacity style={styles.item} onPress={handleLogout}>
+                  <Text style={styles.itemText}>Sair do aplicativo</Text>
+                </TouchableOpacity>
+              </View>
+            </TouchableWithoutFeedback>
+          </View>
+        </TouchableWithoutFeedback>
+      </Modal>
       <QrScannerModal visible={isScannerOpen} onClose={() => setIsScannerOpen(false)} onCodeScanned={handleCodeScanned} />
     </SafeAreaView>
   );
@@ -450,6 +490,37 @@ const styles = StyleSheet.create({
     fontSize: 18,
     color: "#B0B0C6",
     textAlign: "center",
+  },
+  backdrop: {
+    flex: 1,
+    backgroundColor: "rgba(0,0,0,0.4)",
+    justifyContent: "flex-end",
+  },
+  sheet: {
+    backgroundColor: "#1a0a0a",
+    paddingBottom: 24,
+    paddingTop: 12,
+    borderTopLeftRadius: 18,
+    borderTopRightRadius: 18,
+  },
+  title: {
+    fontSize: 16,
+    fontWeight: "700",
+    color: "#FFFFFF",
+    paddingHorizontal: 20,
+    marginBottom: 8,
+  },
+  item: {
+    paddingHorizontal: 20,
+    paddingVertical: 12,
+  },
+  itemText: {
+    fontSize: 15,
+    color: "#FFE6D5",
+  },
+  headerMenuButton: {
+    padding: 6,
+    marginLeft: 4,
   },
 });
 

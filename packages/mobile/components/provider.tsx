@@ -15,6 +15,7 @@ const STORAGE_USER_PREFIX = "@user-cache";
 
 type AppContextValue = {
   loading: boolean;
+  setUser: (user: User | null) => void;
   // Auth
   user: User | null;
   login: (email: string, password: string) => Promise<void>;
@@ -277,7 +278,7 @@ export function AppProvider({ children }: GroupsCacheProviderProps) {
   if (showSplash) return <Text>Splash Screen</Text>;
   return (
     <AppContext.Provider
-      value={{ loading, user, login, loginWithApple, logout, groups, setGroup, setGroupDetails, refreshGroup, removeGroup }}
+      value={{ loading, user, setUser, login, loginWithApple, logout, groups, setGroup, setGroupDetails, refreshGroup, removeGroup }}
     >
       {children}
     </AppContext.Provider>
@@ -291,8 +292,8 @@ export function useAppContext() {
 }
 
 export function useAuth() {
-  const { loading, user, login, loginWithApple, logout } = useAppContext();
-  return { loading, user, login, loginWithApple, logout };
+  const { loading, user, setUser, login, loginWithApple, logout } = useAppContext();
+  return { loading, user, setUser, login, loginWithApple, logout };
 }
 
 export function useGroups() {

@@ -39,6 +39,7 @@ function RootNavigator() {
         </Stack.Protected>
         <Stack.Protected guard={!!user}>
           <Stack.Screen name="index" options={{ headerShown: false }} />
+          <Stack.Screen name="profile" options={{ headerShown: false }} />
           <Stack.Screen name="create-group" options={{ headerShown: false }} />
           <Stack.Screen name="group/info" options={{ headerShown: false }} />
           <Stack.Screen name="group/details" options={{ headerShown: false }} />
