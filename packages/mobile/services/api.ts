@@ -137,6 +137,9 @@ class CreateApiService {
     leave: async (groupId: number): Promise<any> => {
       return await this.post<any>(`/groups/${groupId}/leave`);
     },
+    removeMember: async (groupId: number, memberId: number): Promise<any> => {
+      return await this.post<any>(`/groups/${groupId}/remove/${memberId}`);
+    },
   };
 
   wishlist = {
