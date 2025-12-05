@@ -108,6 +108,42 @@ export default function GroupInfo() {
     }
   }
 
+  function removeMember(memberId: number) {
+    Alert.alert(
+      "Remover membro",
+      "Tem certeza que deseja remover este membro do grupo? Ele poderá entrar novamente usando o ID e a senha do grupo.",
+      [
+        {
+          text: "Cancelar",
+          style: "cancel",
+        },
+        {
+          text: "Remover",
+          style: "destructive",
+          onPress: async () => {
+            try {
+              setMenuVisible(false);
+              await apiService.group.removeMember(data?.id ?? 0, memberId);
+              setData((prev) => {
+                if (!prev) return prev;
+                return {
+                  ...prev,
+                  members: prev.members.filter((m) => m.id !== memberId),
+                };
+              });
+            } catch (error) {
+              if (error instanceof CustomError) {
+                setMessage(error.message);
+              } else {
+                setMessage("Ocorreu um erro ao remover o membro. Tente novamente mais tarde. Se o problema persistir, contate o suporte.");
+              }
+            }
+          },
+        },
+      ],
+    );
+  }
+
   function leaveGroup() {
     Alert.alert("Sair do grupo", "Tem certeza que deseja sair do grupo? Você poderá entrar novamente usando o ID e a senha do grupo.", [
       {
@@ -252,11 +288,7 @@ export default function GroupInfo() {
                   <Text style={styles.memberWishlistCount}>Itens na lista de desejos: {member.wishlistCount}</Text>
                 </View>
                 {data.isOwner && data.status === "OPEN" && (
-                  <TouchableOpacity
-                    onPress={() => {
-                      console.log("Remover");
-                    }}
-                  >
+                  <TouchableOpacity onPress={() => removeMember(member.id)}>
                     <Ionicons name="trash" size={20} color="#FFFFFF" />
                   </TouchableOpacity>
                 )}
