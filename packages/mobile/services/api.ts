@@ -128,6 +128,9 @@ class CreateApiService {
     create: async (data: Omit<GroupCreateData, "id">): Promise<GroupCreateData> => {
       return await this.post<GroupCreateData>("/groups", { body: JSON.stringify(data) });
     },
+    update: async (id: string | number, data: any): Promise<any> => {
+      return await this.put<any>(`/groups`, { body: JSON.stringify({ id, ...data }) });
+    },
     details: async (groupId: number): Promise<any> => {
       return await this.get<Group>(`/groups/${groupId}`);
     },

@@ -39,6 +39,11 @@ export default function GroupInfo() {
     router.push(`/group/details?groupId=${groupId}`);
   }
 
+  function editGroup() {
+    setMenuVisible(false);
+    router.push(`/group/update?groupId=${groupId}`);
+  }
+
   function openMemberWishlist(memberId: number) {
     setMenuVisible(false);
     setSelectedMemberWishlist(memberId);
@@ -320,6 +325,12 @@ export default function GroupInfo() {
                   >
                     <Text style={styles.itemText}>QR code do grupo</Text>
                   </TouchableOpacity>
+
+                  {data.isOwner && (
+                    <TouchableOpacity style={styles.item} onPress={editGroup}>
+                      <Text style={styles.itemText}>Editar grupo</Text>
+                    </TouchableOpacity>
+                  )}
 
                   {!data.isOwner && data.status === "OPEN" && (
                     <TouchableOpacity style={styles.item} onPress={leaveGroup}>
