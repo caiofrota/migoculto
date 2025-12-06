@@ -72,7 +72,7 @@ export const GroupsScreen = () => {
 
   const handleConfirmJoin = async (groupId: number) => {
     setIsJoinModalOpen(false);
-    router.push(`/group/details?groupId=${groupId}`);
+    router.push(`/group/info?groupId=${groupId}`);
   };
 
   function parseDeepLink(url: string) {
