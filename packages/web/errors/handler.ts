@@ -61,7 +61,7 @@ export async function withErrorHandling(handler: Handler): Promise<Handler> {
             {
               status: "error",
               error: "ForeignKeyConstraintError",
-              message: "Violação de chave estrangeira.",
+              message: "Ocorrência de chave estrangeira. Entre em contato com o suporte.",
               action: "Os dados fornecidos referenciam um recurso inexistente. Por favor, verifique e tente novamente.",
               error_id: crypto.randomUUID(),
             },

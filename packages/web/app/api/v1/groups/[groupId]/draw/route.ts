@@ -26,7 +26,7 @@ async function handlePost(request: NextRequest, ctx: RouteContext<"/api/v1/group
   const drawnGroup = drawSecretFriends(group.members.map((member) => member.id));
   const membersUpdate = Array.from(drawnGroup?.entries() ?? []).map(([memberId, assignedUserId]) => ({
     where: { id: memberId },
-    data: { assignedUserId },
+    data: { assignedUserId: group.members.find((m) => m.id === assignedUserId)?.userId },
   }));
 
   await prisma.$transaction([
