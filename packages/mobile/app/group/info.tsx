@@ -202,9 +202,34 @@ export default function GroupInfo() {
             </Text>
           </View>
 
-          <TouchableOpacity onPress={() => setMenuVisible(true)} style={styles.headerMenuButton}>
-            <Ionicons name="ellipsis-vertical" size={20} color="#FFE6D5" />
-          </TouchableOpacity>
+          <View style={{ flexDirection: "row", alignItems: "center" }}>
+            <TouchableOpacity onPress={goToMessages} style={styles.headerMenuButton}>
+              <Ionicons name="chatbox-ellipses" size={20} color="#FFE6D5" />
+              {data.unreadCount > 0 && (
+                <View
+                  style={{
+                    minWidth: 16,
+                    paddingHorizontal: 2,
+                    height: 16,
+                    borderRadius: 8,
+                    borderWidth: 1.5,
+                    borderColor: "#8B0000",
+                    backgroundColor: "#6EAD72",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    position: "absolute",
+                    top: -2,
+                    right: -2,
+                  }}
+                >
+                  <Text style={{ color: "#8B0000", fontSize: 12 }}>{data.unreadCount > 9 ? "+9" : data.unreadCount}</Text>
+                </View>
+              )}
+            </TouchableOpacity>
+            <TouchableOpacity onPress={() => setMenuVisible(true)} style={styles.headerMenuButton}>
+              <Ionicons name="ellipsis-vertical" size={20} color="#FFE6D5" />
+            </TouchableOpacity>
+          </View>
         </View>
         <ScrollView>
           <View style={styles.info}>
