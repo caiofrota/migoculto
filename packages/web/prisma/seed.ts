@@ -1,23 +1,5 @@
-import { PrismaNeon } from "@prisma/adapter-neon";
-import { PrismaPg } from "@prisma/adapter-pg";
-import { PrismaClient } from "@prisma/client";
 import bcrypt from "bcryptjs";
-import { customAlphabet } from "nanoid";
-
-const alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
-const nanoid = customAlphabet(alphabet, 8);
-
-function createPrismaClient() {
-  return new PrismaClient({
-    adapter:
-      process.env.NODE_ENV === "production"
-        ? new PrismaNeon({ connectionString: process.env.DATABASE_URL })
-        : new PrismaPg({ connectionString: process.env.DATABASE_URL }),
-    log: process.env.NODE_ENV === "development" ? ["warn", "error"] : ["error"],
-  });
-}
-
-export const prisma = createPrismaClient();
+import { prisma } from "../lib/database.js";
 
 async function main() {
   const hashedPassword = await bcrypt.hash("admin", 10);
@@ -64,7 +46,6 @@ async function main() {
       eventDate: new Date(),
       password: "pass",
       ownerId: 1,
-      code: nanoid(),
       members: {
         connectOrCreate: [
           {
@@ -93,7 +74,6 @@ async function main() {
       eventDate: new Date(),
       password: "pass",
       ownerId: 1,
-      code: nanoid(),
       members: {
         connectOrCreate: [
           {
@@ -122,7 +102,6 @@ async function main() {
       eventDate: new Date(),
       password: "pass",
       ownerId: 2,
-      code: nanoid(),
       members: {
         connectOrCreate: [
           {
@@ -147,7 +126,6 @@ async function main() {
       eventDate: new Date(),
       password: "pass",
       ownerId: 2,
-      code: nanoid(),
       members: {
         connectOrCreate: [
           {

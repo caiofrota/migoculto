@@ -4,12 +4,8 @@ import { addDoc, collection } from "firebase/firestore";
 import { prisma } from "lib/database";
 import { firestore } from "lib/firebase";
 import { sendGroupdChangeNotifications as sendGroupUpdateNotifications } from "lib/notification";
-import { customAlphabet } from "nanoid";
 import { NextRequest, NextResponse } from "next/server";
 import z from "zod";
-
-const alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
-const nanoid = customAlphabet(alphabet, 8);
 
 export const GET = await withErrorHandling(findAllUserGroups);
 export const POST = await withErrorHandling(createGroup);
@@ -123,7 +119,6 @@ async function createGroup(request: NextRequest) {
       eventDate: data.eventDate,
       additionalInfo: data.additionalInfo,
       location: data.location,
-      code: nanoid(),
       members: {
         create: {
           userId: user.id,
