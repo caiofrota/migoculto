@@ -1,16 +1,19 @@
-import { PrismaMariaDb } from "@prisma/adapter-mariadb";
+import { PrismaNeon } from "@prisma/adapter-neon";
+import { PrismaPg } from "@prisma/adapter-pg";
 import { PrismaClient } from "@prisma/client";
 import bcrypt from "bcryptjs";
 
-const adapter = new PrismaMariaDb({
-  host: process.env.DATABASE_HOST,
-  port: process.env.DATABASE_PORT ? parseInt(process.env.DATABASE_PORT) : 3306,
-  user: process.env.DATABASE_USER,
-  password: process.env.DATABASE_PASSWORD,
-  database: process.env.DATABASE_NAME,
-});
+function createPrismaClient() {
+  return new PrismaClient({
+    adapter:
+      process.env.NODE_ENV === "production"
+        ? new PrismaNeon({ connectionString: process.env.DATABASE_URL })
+        : new PrismaPg({ connectionString: process.env.DATABASE_URL }),
+    log: process.env.NODE_ENV === "development" ? ["warn", "error"] : ["error"],
+  });
+}
 
-const prisma = new PrismaClient({ adapter });
+export const prisma = createPrismaClient();
 
 async function main() {
   const hashedPassword = await bcrypt.hash("admin", 10);

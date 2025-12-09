@@ -31,7 +31,7 @@ async function handleGet(request: NextRequest, ctx: RouteContext<"/api/v1/groups
       include: { sender: { select: { firstName: true, lastName: true } }, receiver: { select: { firstName: true, lastName: true } } },
       orderBy: { createdAt: "asc" },
     })
-  ).filter((message) => message.createdAt > (membership?.joinedAt || new Date()));
+  ).filter((message) => message.createdAt > (membership?.createdAt || new Date()));
   const lastRead = membership?.lastReadAt ?? new Date(0);
   const unread = messages.filter((message) => message.createdAt > lastRead);
   const lastMessage = messages.length > 0 ? messages[messages.length - 1] : null;

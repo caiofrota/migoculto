@@ -34,7 +34,7 @@ async function findAllUserGroups(request: NextRequest) {
           },
           orderBy: { createdAt: "asc" },
         })
-      ).filter((message) => message.createdAt > (member?.joinedAt || new Date()));
+      ).filter((message) => message.createdAt > (member?.createdAt || new Date()));
       const group = member.group;
       const unread = messages.filter((message) => message.createdAt > lastRead);
       const lastMessage = messages.length > 0 ? messages[messages.length - 1] : null;

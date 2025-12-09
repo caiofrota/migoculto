@@ -21,7 +21,6 @@ async function joinGroup(request: NextRequest, ctx: RouteContext<"/api/v1/groups
       members: {
         create: {
           userId: user.id,
-          joinedAt: new Date(),
         },
       },
       updatedAt: new Date(),

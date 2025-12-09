@@ -1,15 +1,22 @@
-import { PrismaMariaDb } from "@prisma/adapter-mariadb";
+import { PrismaNeon } from "@prisma/adapter-neon";
+import { PrismaPg } from "@prisma/adapter-pg";
 import { PrismaClient } from "@prisma/client";
 
-const adapter = new PrismaMariaDb({
-  host: process.env.DATABASE_HOST,
-  port: parseInt(process.env.DATABASE_PORT!),
-  user: process.env.DATABASE_USER,
-  password: process.env.DATABASE_PASSWORD,
-  database: process.env.DATABASE_NAME,
-});
+declare global {
+  var prisma: PrismaClient | undefined;
+}
 
-export const prisma = new PrismaClient({ adapter }).$extends({
+function createPrismaClient() {
+  return new PrismaClient({
+    adapter:
+      process.env.NODE_ENV === "production"
+        ? new PrismaNeon({ connectionString: process.env.DATABASE_URL })
+        : new PrismaPg({ connectionString: process.env.DATABASE_URL }),
+    log: process.env.NODE_ENV === "development" ? ["warn", "error"] : ["error"],
+  });
+}
+
+export const prisma = createPrismaClient().$extends({
   query: {
     user: {
       async create({ args, query }) {
