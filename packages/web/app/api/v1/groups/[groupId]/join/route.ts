@@ -14,9 +14,13 @@ async function joinGroup(request: NextRequest, ctx: RouteContext<"/api/v1/groups
   const { groupId } = path.parse(pathParams);
   const { password } = body.parse(await request.json());
 
+  const isNumeric = !isNaN(Number(groupId));
+  console.log({ user, [isNumeric ? "id" : "code"]: isNumeric ? Number(groupId) : groupId, password });
   const group = await prisma.group.update({
     include: { members: { include: { user: { select: { id: true, firstName: true, lastName: true } } } } },
-    where: { id: groupId, password },
+    where: { [isNumeric ? "id" : "code"]: isNumeric ? Number(groupId) : groupId, password } as
+      | { id: number; password: string }
+      | { code: string; password: string },
     data: {
       members: {
         create: {
@@ -33,6 +37,7 @@ async function joinGroup(request: NextRequest, ctx: RouteContext<"/api/v1/groups
 
   return NextResponse.json({
     id: member.groupId,
+    code: group.code,
     userId: member.userId,
     password: group.password,
     name: group.name,
@@ -70,7 +75,7 @@ async function joinGroup(request: NextRequest, ctx: RouteContext<"/api/v1/groups
 }
 
 const path = z.object({
-  groupId: z.coerce.number(),
+  groupId: z.string(),
 });
 
 const body = z.object({

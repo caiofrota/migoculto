@@ -42,6 +42,7 @@ async function handleGet(request: NextRequest, ctx: RouteContext<"/api/v1/groups
 
   const res = {
     id: group.id,
+    code: group.code,
     name: group.name,
     description: group.description,
     location: group.location,

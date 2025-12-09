@@ -46,6 +46,7 @@ async function findAllUserGroups(request: NextRequest) {
 
       return {
         id: member.groupId,
+        code: group.code,
         userId: member.userId,
         password: group.password,
         name: group.name,
