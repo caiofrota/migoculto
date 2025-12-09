@@ -126,7 +126,7 @@ function isGroupCodeUniqueError(error: unknown): boolean {
 }
 
 function generateGroupCode() {
-  const alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+  const alphabet = "ABCDEFGHJKLMNPQRSTUVWXYZ123456789";
   const nanoid = customAlphabet(alphabet, 8);
   return nanoid();
 }
