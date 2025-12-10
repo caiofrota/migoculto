@@ -120,7 +120,7 @@ export function AppProvider({ children }: GroupsCacheProviderProps) {
   async function clearData() {
     setUser(null);
     setGroups(null);
-    await AsyncStorage.removeItem(`${STORAGE_USER_PREFIX}`);
+    await AsyncStorage.clear();
   }
 
   async function login(email: string, password: string) {
