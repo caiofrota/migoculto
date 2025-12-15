@@ -235,8 +235,8 @@ export default function GroupInfo() {
           <View style={styles.info}>
             <View>
               <View style={styles.infoItem}>
-                <Text style={styles.infoTitle}>Id do grupo:</Text>
-                <Text style={styles.infoText}>{data.id}</Text>
+                <Text style={styles.infoTitle}>Código do grupo:</Text>
+                <Text style={styles.infoText}>{data.code?.replace(/(\w{4})(\w{4})/, "$1-$2")}</Text>
               </View>
             </View>
             <View>

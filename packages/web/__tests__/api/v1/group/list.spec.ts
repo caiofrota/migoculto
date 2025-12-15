@@ -18,7 +18,6 @@ describe("GET /api/v1/groups", () => {
     groupId: 1,
     userId: 1,
     createdAt: new Date("2024-11-30T10:00:00.000Z"),
-    joinedAt: new Date("2024-11-30T10:00:00.000Z"),
     lastReadAt: new Date("2024-11-30T13:00:00.000Z"),
   };
   const group = {

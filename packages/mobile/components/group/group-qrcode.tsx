@@ -25,7 +25,7 @@ export const GroupQRCodeModal: React.FC<Props> = ({ visible, onClose, group }) =
             <View style={styles.credentialsContainer}>
               <View>
                 <Text style={styles.sectionTitle}>Código do grupo</Text>
-                <Text style={styles.text}>{group.id}</Text>
+                <Text style={styles.text}>{group.code?.replace(/(\w{4})(\w{4})/, "$1-$2")}</Text>
               </View>
 
               <View>
@@ -34,7 +34,7 @@ export const GroupQRCodeModal: React.FC<Props> = ({ visible, onClose, group }) =
               </View>
             </View>
 
-            <QRCode value={`migoculto://?action=join&code=${group.id}&password=${group.password}`} size={250} />
+            <QRCode value={`migoculto://?action=join&code=${group.code}&password=${group.password}`} size={250} />
 
             {group.location && (
               <>

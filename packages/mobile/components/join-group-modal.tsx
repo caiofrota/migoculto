@@ -12,6 +12,7 @@ import {
   TouchableWithoutFeedback,
   View,
 } from "react-native";
+import MaskInput from "react-native-mask-input";
 import { useGroups } from "./provider";
 
 interface JoinGroupModalProps {
@@ -41,7 +42,7 @@ export const JoinGroupModal: React.FC<JoinGroupModalProps> = ({ visible, onClose
         return;
       }
       setLoading(true);
-      const group = await apiService.group.join(Number(groupCode), password);
+      const group = await apiService.group.join(groupCode, password);
       setGroupCode("");
       setPassword("");
       setGroupDetails(group.id, group);
@@ -86,12 +87,23 @@ export const JoinGroupModal: React.FC<JoinGroupModalProps> = ({ visible, onClose
                 <Text style={styles.title}>Entrar em um grupo</Text>
 
                 <Text style={styles.label}>Código do grupo</Text>
-                <TextInput
+                <MaskInput
                   style={styles.input}
-                  placeholder="Ex: 12345"
+                  placeholder="ABCD-1234"
                   placeholderTextColor="#aaa"
                   value={groupCode}
-                  onChangeText={setGroupCode}
+                  onChangeText={(t) => setGroupCode(t.toUpperCase())}
+                  mask={[
+                    /[A-Za-z0-9]/,
+                    /[A-Za-z0-9]/,
+                    /[A-Za-z0-9]/,
+                    /[A-Za-z0-9]/,
+                    "-",
+                    /[A-Za-z0-9]/,
+                    /[A-Za-z0-9]/,
+                    /[A-Za-z0-9]/,
+                    /[A-Za-z0-9]/,
+                  ]}
                 />
 
                 <Text style={styles.label}>Senha</Text>

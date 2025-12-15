@@ -125,7 +125,7 @@ class CreateApiService {
     all: async (): Promise<Group[]> => {
       return await this.get<Group[]>("/groups");
     },
-    create: async (data: Omit<GroupCreateData, "id">): Promise<GroupCreateData> => {
+    create: async (data: Omit<GroupCreateData, "id" | "code">): Promise<GroupCreateData> => {
       return await this.post<GroupCreateData>("/groups", { body: JSON.stringify(data) });
     },
     update: async (id: string | number, data: any): Promise<any> => {
@@ -144,7 +144,7 @@ class CreateApiService {
         body: JSON.stringify({ groupId }),
       });
     },
-    join: async (groupId: number, password: string): Promise<any> => {
+    join: async (groupId: string, password: string): Promise<any> => {
       return await this.post<any>(`/groups/${groupId}/join`, {
         body: JSON.stringify({ password }),
       });
@@ -233,6 +233,7 @@ export type User = {
 
 export type Group = {
   id: number;
+  code: string;
   userId: number;
   password: string;
   name: string;
@@ -303,6 +304,7 @@ export type GroupDetail = Group & {
 
 type GroupCreateData = {
   id: number;
+  code: string;
   name: string;
   password: string;
   eventDate: string;
