@@ -9,8 +9,7 @@
   "scripts": {
     "build": "turbo run build",
     "coverage": "vitest run --coverage",
-    "dev": "pnpm dev:mobile",
-    "dev:all": "turbo run dev",
+    "dev": "turbo run dev",
     "dev:mobile": "pnpm --filter @migoculto/mobile dev",
     "dev:mobile:client": "pnpm --filter @migoculto/mobile dev:client",
     "dev:mobile:clear": "pnpm --filter @migoculto/mobile dev:clear",

@@ -28,6 +28,16 @@ vi.mock("jose", () => ({
   jwtVerify: hoisted.mockedVerifyToken,
 }));
 
+vi.mock("@migoculto/db", async () => {
+  const { default: prisma } = await import("__tests__/__mocks__/prisma");
+  class PrismaClientMock {
+    constructor() {
+      return prisma;
+    }
+  }
+  return { Prisma: { PrismaClientKnownRequestError: class PrismaClientKnownRequestError extends Error {} }, PrismaClient: PrismaClientMock, prisma };
+});
+
 describe("Proxy", async () => {
   const users = [
     {
@@ -61,14 +71,6 @@ describe("Proxy", async () => {
     vi.stubEnv("ACCESS_TOKEN_EXPIRES_IN", "1m");
     vi.stubEnv("REFRESH_TOKEN_EXPIRES_IN", "1d");
     vi.stubEnv("SESSION_SECRET", "k6N11Lccw7e4X+Iv+wj5y3To4FOIoQ/aRGC2U5ROn68qeKgYConFqu7wOTIgvmyhcJV2yyd3Q08f9EYEHQFQFg==");
-    vi.mock("@migoculto/db", () => {
-      class PrismaClientMock {
-        constructor() {
-          return prisma;
-        }
-      }
-      return { Prisma: { PrismaClientKnownRequestError: class PrismaClientKnownRequestError extends Error {} }, PrismaClient: PrismaClientMock, prisma };
-    });
   });
 
   beforeEach(() => {

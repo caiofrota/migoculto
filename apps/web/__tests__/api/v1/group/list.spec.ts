@@ -2,7 +2,7 @@ import prisma from "__tests__/__mocks__/prisma";
 
 import { GET } from "app/api/v1/groups/route";
 import { NextRequest } from "next/server";
-import { beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const hoisted = vi.hoisted(() => ({
   requestUser: vi.fn().mockResolvedValue({ id: 1, isActive: true } as any),
@@ -11,6 +11,16 @@ const hoisted = vi.hoisted(() => ({
 vi.mock("app/api/v1/session/authentication", async () => ({
   getRequestUser: hoisted.requestUser,
 }));
+
+vi.mock("@migoculto/db", async () => {
+  const { default: prisma } = await import("__tests__/__mocks__/prisma");
+  class PrismaClientMock {
+    constructor() {
+      return prisma;
+    }
+  }
+  return { Prisma: { PrismaClientKnownRequestError: class PrismaClientKnownRequestError extends Error {} }, PrismaClient: PrismaClientMock, prisma };
+});
 
 describe("GET /api/v1/groups", () => {
   const membership = {
@@ -56,17 +66,6 @@ describe("GET /api/v1/groups", () => {
       createdAt: new Date("2024-11-30T15:00:00.000Z"),
     },
   ];
-
-  beforeAll(() => {
-    vi.mock("@migoculto/db", () => {
-      class PrismaClientMock {
-        constructor() {
-          return prisma;
-        }
-      }
-      return { Prisma: { PrismaClientKnownRequestError: class PrismaClientKnownRequestError extends Error {} }, PrismaClient: PrismaClientMock, prisma };
-    });
-  });
 
   beforeEach(() => {
     prisma.user.findUnique.mockResolvedValue({

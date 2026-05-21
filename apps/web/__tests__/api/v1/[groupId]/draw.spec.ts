@@ -2,7 +2,7 @@ import prisma from "__tests__/__mocks__/prisma";
 
 import { POST } from "app/api/v1/groups/[groupId]/draw/route";
 import { NextRequest } from "next/server";
-import { beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const hoisted = vi.hoisted(() => ({
   mockedVerifyToken: vi.fn(),
@@ -13,6 +13,16 @@ vi.mock("jose", () => ({
     return { payload: hoisted.mockedVerifyToken() };
   },
 }));
+
+vi.mock("@migoculto/db", async () => {
+  const { default: prisma } = await import("__tests__/__mocks__/prisma");
+  class PrismaClientMock {
+    constructor() {
+      return prisma;
+    }
+  }
+  return { Prisma: { PrismaClientKnownRequestError: class PrismaClientKnownRequestError extends Error {} }, PrismaClient: PrismaClientMock, prisma };
+});
 
 describe("Draw secret friends from group endpoint", () => {
   const users = [
@@ -41,17 +51,6 @@ describe("Draw secret friends from group endpoint", () => {
       role: "USER" as const,
     },
   ];
-
-  beforeAll(() => {
-    vi.mock("@migoculto/db", () => {
-      class PrismaClientMock {
-        constructor() {
-          return prisma;
-        }
-      }
-      return { Prisma: { PrismaClientKnownRequestError: class PrismaClientKnownRequestError extends Error {} }, PrismaClient: PrismaClientMock, prisma };
-    });
-  });
 
   beforeEach(() => {
     prisma.user.findUnique.mockImplementation((args) => {

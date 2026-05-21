@@ -29,11 +29,9 @@ type Props = {
 };
 export default async function RootLayout({ children }: Props) {
   return (
-    <html>
+    <html lang="pt-BR">
       <body>
-        <main>
-          <Providers>{children}</Providers>
-        </main>
+        <Providers>{children}</Providers>
       </body>
     </html>
   );

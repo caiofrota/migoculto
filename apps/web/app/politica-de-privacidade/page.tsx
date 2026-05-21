@@ -1,130 +1,134 @@
-// app/politica-de-privacidade/page.tsx
 import type { Metadata } from "next";
+import { PrivacyLayout } from "../_components/marketing/privacy-layout";
+import { contactEmail } from "../_components/marketing/store-links";
 
 export const metadata: Metadata = {
   title: "Política de Privacidade | MigOculto",
+  description:
+    "Entenda como o MigOculto trata dados necessários para criar conta, organizar grupos, enviar mensagens, listas de desejos, notificações e melhorar a experiência no app.",
+  alternates: {
+    canonical: "/politica-de-privacidade",
+  },
+  openGraph: {
+    title: "Política de Privacidade | MigOculto",
+    description: "Política de privacidade do MigOculto, app de amigo secreto online.",
+    url: "https://migoculto.com.br/politica-de-privacidade",
+    siteName: "MigOculto",
+    type: "website",
+    locale: "pt_BR",
+  },
 };
 
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
   return (
-    <section className="space-y-3">
-      <h2 className="text-lg font-semibold text-emerald-900">{title}</h2>
-      <div className="space-y-2 text-sm leading-relaxed text-slate-800">{children}</div>
+    <section className="rounded-[28px] border border-red-100 bg-white/86 p-6 shadow-[0_20px_70px_rgba(79,6,6,0.07)]">
+      <h2 className="text-xl font-black tracking-tight text-red-950">{title}</h2>
+      <div className="mt-4 space-y-3 text-sm leading-7 text-red-950/72">{children}</div>
     </section>
   );
 }
 
 export default function PrivacyPolicyPage() {
   return (
-    <main className="min-h-screen bg-linear-to-b from-red-920 to-red-950 text-slate-100">
-      <div className="mx-auto flex min-h-screen max-w-6xl flex-col px-4 py-10 sm:px-6 lg:px-8 lg:py-16">
-        <header className="mb-10 flex flex-col items-start gap-4 sm:flex-row sm:items-center sm:justify-between">
-          <div className="flex items-center gap-4">
-            <img src="/images/logo.png" alt="MigOculto" className="w-24 p-2 rounded-2xl" />
-
-            <div>
-              <p className="text-xs font-semibold uppercase tracking-[0.2em] text-amber-200">MigOculto</p>
-              <h1 className="text-2xl font-bold text-amber-50 sm:text-3xl">Política de Privacidade</h1>
-              <p className="mt-1 text-xs text-amber-100/80">Última atualização: 10 de novembro de 2023</p>
-            </div>
-          </div>
-        </header>
-
-        <div className="grow rounded-3xl bg-slate-50/95 p-6 shadow-xl shadow-amber-950/40 backdrop-blur-sm sm:p-8">
-          <div className="space-y-6">
-            <p className="text-sm leading-relaxed text-slate-800">
-              A sua privacidade é importante para nós. Esta política de privacidade descreve como MigOculto (&quot;nós&quot;,
-              &quot;nosso&quot; ou &quot;aplicativo&quot;) coleta, utiliza e protege as informações pessoais dos usuários. Entretanto, é
-              importante ressaltar que nosso aplicativo é projetado de forma a não coletar ou armazenar qualquer informação pessoal dos
-              usuários.
+    <PrivacyLayout>
+      <main className="px-5 pb-20 pt-28 sm:px-8 lg:pt-32">
+        <article className="mx-auto max-w-5xl">
+          <header className="rounded-[36px] border border-amber-100/20 bg-amber-50/10 p-8 text-amber-50 shadow-[0_30px_100px_rgba(48,1,1,0.3)] backdrop-blur lg:p-12">
+            <p className="text-sm font-black uppercase tracking-[0.22em] text-amber-200">MigOculto</p>
+            <h1 className="mt-4 max-w-3xl text-4xl font-black tracking-tight sm:text-6xl">Política de Privacidade</h1>
+            <p className="mt-5 max-w-2xl text-base leading-8 text-amber-50/76">
+              Esta política explica, em linguagem direta, como tratamos informações necessárias para o funcionamento do aplicativo MigOculto.
             </p>
+            <p className="mt-6 text-sm font-semibold text-amber-200">Última atualização: 10 de novembro de 2023</p>
+          </header>
 
-            <Section title="Coleta de Informações">
+          <div className="mt-10 space-y-5">
+            <Section title="Visão geral">
               <p>
-                Ao usar o MigOculto, coletamos uma riqueza de informações, como: nome, endereço de e-mail e outras informações de contato,
-                ID do usuário, ID do dispositivo, interações com o produto, dados de publicidade, informações sobre o uso, dados técnicos,
-                como falhas, desempenho, diagnósticos e outros dados necessários para o funcionamento do aplicativo. Essas informações são a
-                chave para personalizar e aprimorar a sua experiência conosco, garantindo que cada interação seja única e adaptada às suas
-                preferências.
+                A sua privacidade é importante para nós. Esta política de privacidade descreve como o MigOculto (&quot;nós&quot;,
+                &quot;nosso&quot; ou &quot;aplicativo&quot;) coleta, utiliza e protege informações dos usuários para viabilizar a criação
+                de conta, organização de grupos de amigo secreto, mensagens, listas de desejos, notificações e demais funcionalidades do app.
               </p>
             </Section>
 
-            <Section title="Uso de Informações">
+            <Section title="Coleta de informações">
               <p>
-                Utilizamos essas informações para enriquecer a sua experiência no MigOculto, buscando constantemente formas de aprimorar e
-                personalizar a aplicação conforme as suas preferências e interações.
+                Ao usar o MigOculto, podemos tratar informações como nome, endereço de e-mail, dados de conta, identificadores de usuário e
+                dispositivo, interações com funcionalidades do aplicativo, informações de uso, dados técnicos, diagnósticos, falhas e
+                desempenho.
+              </p>
+              <p>
+                Esses dados ajudam a manter o aplicativo funcionando, personalizar a experiência, permitir a participação nos grupos e
+                aprimorar a estabilidade do serviço.
               </p>
             </Section>
 
-            <Section title="Mensagens Anônimas">
+            <Section title="Uso de informações">
               <p>
-                No MigOculto, oferecemos aos usuários a capacidade de enviar mensagens anônimas que permanecerão ocultas até o dia do evento
-                ou término da brincadeira. Durante esse período, a identidade dos remetentes não será revelada. Esta funcionalidade visa
-                proporcionar uma experiência única e intrigante para os usuários.
-              </p>
-              <p>
-                No entanto, é importante destacar que ao final da brincadeira, os remetentes das mensagens anônimas serão revelados. Esta
-                revelação faz parte da dinâmica do aplicativo e está em conformidade com nossa abordagem transparente e de diversão.
-              </p>
-              <p>
-                Ressaltamos que, embora as mensagens sejam inicialmente anônimas, outras informações sobre o uso do aplicativo podem ser
-                coletadas conforme descrito nesta política de privacidade.
+                Utilizamos informações para autenticar usuários, organizar grupos, realizar sorteios, exibir listas de desejos, viabilizar
+                mensagens, enviar lembretes e notificações, prestar suporte e melhorar a experiência no MigOculto.
               </p>
             </Section>
 
-            <Section title="Compartilhamento de Informações">
+            <Section title="Mensagens anônimas">
               <p>
-                Em casos específicos, podemos compartilhar informações coletadas para aprimorar nossos esforços de publicidade e marketing.
-                Este compartilhamento será realizado com responsabilidade, garantindo a segurança e privacidade dos dados. Além disso,
-                compartilharemos informações apenas quando necessário para o funcionamento do aplicativo ou em conformidade com as leis
-                aplicáveis.
+                O MigOculto oferece a possibilidade de enviar mensagens anônimas que permanecem ocultas durante a brincadeira. Essa
+                funcionalidade existe para criar uma experiência divertida, misteriosa e alinhada à dinâmica do amigo secreto.
+              </p>
+              <p>
+                A depender da dinâmica da brincadeira, remetentes de mensagens anônimas podem ser revelados no final do evento. Essa
+                revelação faz parte da proposta do aplicativo.
+              </p>
+            </Section>
+
+            <Section title="Compartilhamento de informações">
+              <p>
+                Podemos compartilhar informações quando necessário para o funcionamento do aplicativo, cumprimento de obrigações legais,
+                segurança, suporte, publicidade, marketing ou melhoria do serviço. Esse compartilhamento deve ocorrer de forma responsável e
+                compatível com esta política.
               </p>
             </Section>
 
             <Section title="Segurança">
-              <p>Implementamos medidas de segurança adequadas para proteger quaisquer informações.</p>
-            </Section>
-
-            <Section title="Cookies e Tecnologias Semelhantes">
               <p>
-                Para oferecer uma experiência personalizada, utilizamos cookies e tecnologias semelhantes. Essas ferramentas ajudam a
-                identificar o usuário, mantendo informações importantes durante a sessão e garantindo uma navegação mais eficiente e
-                personalizada.
+                Adotamos medidas técnicas e organizacionais razoáveis para proteger as informações tratadas pelo MigOculto. Nenhum sistema,
+                entretanto, é totalmente imune a riscos, e seguimos trabalhando para manter a aplicação segura e estável.
               </p>
             </Section>
 
-            <Section title="Alterações nesta Política de Privacidade">
+            <Section title="Cookies e tecnologias semelhantes">
               <p>
-                Reservamo-nos o direito de atualizar esta política de privacidade a qualquer momento. A data da última atualização será
-                indicada no início desta política.
+                Podemos utilizar cookies e tecnologias semelhantes para manter sessões, lembrar preferências, melhorar navegação, analisar
+                funcionamento do serviço e oferecer uma experiência mais eficiente.
+              </p>
+            </Section>
+
+            <Section title="Alterações nesta política">
+              <p>
+                Podemos atualizar esta política de privacidade a qualquer momento. Quando isso ocorrer, a data de última atualização será
+                indicada nesta página.
               </p>
             </Section>
 
             <Section title="Contato">
               <p>
-                Se tiver alguma dúvida sobre esta política de privacidade ou sobre o nosso aplicativo, entre em contato conosco através do
-                seguinte endereço de e-mail:{" "}
-                <a
-                  href="mailto:contato@migoculto.com.br"
-                  className="font-medium text-emerald-700 underline underline-offset-2 hover:text-emerald-800"
-                >
-                  contato@migoculto.com.br
+                Em caso de dúvidas sobre esta política de privacidade ou sobre o MigOculto, entre em contato pelo e-mail{" "}
+                <a className="font-bold text-red-800 underline underline-offset-4 hover:text-red-950" href={`mailto:${contactEmail}`}>
+                  {contactEmail}
                 </a>
                 .
               </p>
             </Section>
 
-            <Section title="Disposições Finais">
+            <Section title="Disposições finais">
               <p>
-                Esta política de privacidade reflete o nosso compromisso em proteger a privacidade dos usuários, e estamos empenhados em
-                manter a transparência em relação às informações que não coletamos. Ao usar nosso aplicativo, você concorda com esta
-                política de privacidade. Lembre-se de que, uma vez que não coletamos informações pessoais, não temos a capacidade de usá-las
-                ou compartilhá-las de qualquer forma.
+                Ao usar o MigOculto, você declara ciência desta política de privacidade. Esta página busca manter transparência sobre o uso
+                de dados necessários à experiência do aplicativo e poderá ser revista conforme o produto evoluir.
               </p>
             </Section>
           </div>
-        </div>
-      </div>
-    </main>
+        </article>
+      </main>
+    </PrivacyLayout>
   );
 }
