@@ -1,0 +1,50 @@
+{
+  "cli": {
+    "version": ">= 5.6.0",
+    "appVersionSource": "local"
+  },
+  "build": {
+    "production": {
+      "channel": "production",
+      "autoIncrement": true,
+      "android": {
+        "image": "latest",
+        "env": {
+          "PLATFORM": "android"
+        }
+      },
+      "ios": {
+        "image": "latest",
+        "env": {
+          "PLATFORM": "ios"
+        }
+      },
+      "env": {
+        "EAS_ENVIRONMENT": "production"
+      }
+    },
+    "staging": {
+      "extends": "production",
+      "distribution": "internal",
+      "channel": "staging"
+    },
+    "preview": {
+      "extends": "production",
+      "distribution": "internal",
+      "channel": "preview"
+    },
+    "development": {
+      "extends": "production",
+      "distribution": "internal",
+      "channel": "development",
+      "developmentClient": true,
+      "env": {
+        "APP_VARIANT": "development",
+        "EAS_ENVIRONMENT": "production"
+      }
+    }
+  },
+  "submit": {
+    "production": {}
+  }
+}

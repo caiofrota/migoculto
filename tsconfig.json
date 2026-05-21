@@ -1,0 +1,19 @@
+{
+  "extends": "./tsconfig.base.json",
+  "compilerOptions": {
+    "jsx": "preserve",
+    "noEmit": true,
+    "paths": {
+      "@/*": ["apps/web/*"],
+      "@tests/*": ["tests/*"],
+      "@migoculto/api-client": ["packages/api-client/src/index.ts"],
+      "@migoculto/db": ["packages/db/src/index.ts"],
+      "@migoculto/i18n": ["packages/i18n/src/index.ts"],
+      "@migoculto/types": ["packages/types/src/index.ts"],
+      "@migoculto/ui": ["packages/ui/src/index.ts"]
+    },
+    "types": ["node", "vitest/globals"]
+  },
+  "include": ["tests/**/*.ts", "apps/**/*.ts", "apps/**/*.tsx", "packages/**/*.ts", "packages/**/*.tsx"],
+  "exclude": ["node_modules", "**/.next/**", "**/.expo/**", "**/dist/**", "**/coverage/**"]
+}
