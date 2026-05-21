@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { PrivacyLayout } from "../_components/marketing/privacy-layout";
-import { contactEmail } from "../_components/marketing/store-links";
+import { contactHref, contactLabel } from "../_components/marketing/store-links";
 
 export const metadata: Metadata = {
   title: "Política de Privacidade | MigOculto",
@@ -112,9 +112,9 @@ export default function PrivacyPolicyPage() {
 
             <Section title="Contato">
               <p>
-                Em caso de dúvidas sobre esta política de privacidade ou sobre o MigOculto, entre em contato pelo e-mail{" "}
-                <a className="font-bold text-red-800 underline underline-offset-4 hover:text-red-950" href={`mailto:${contactEmail}`}>
-                  {contactEmail}
+                Em caso de dúvidas sobre esta política de privacidade ou sobre o MigOculto, use o canal de contato oficial:{" "}
+                <a className="font-bold text-red-800 underline underline-offset-4 hover:text-red-950" href={contactHref}>
+                  {contactLabel}
                 </a>
                 .
               </p>

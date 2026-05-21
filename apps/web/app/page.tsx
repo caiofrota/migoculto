@@ -6,13 +6,14 @@ import { FeatureCard } from "./_components/marketing/feature-card";
 import { SiteFooter } from "./_components/marketing/site-footer";
 import { SiteHeader } from "./_components/marketing/site-header";
 import { StepCard } from "./_components/marketing/step-card";
+import { appStoreUrl, googlePlayUrl } from "./_components/marketing/store-links";
 
 const siteUrl = "https://migoculto.com.br";
 
 export const metadata: Metadata = {
-  title: "MigOculto | Amigo secreto online sem complicação",
+  title: "MigOculto | App de amigo secreto online para sorteio, amigo doce e Natal",
   description:
-    "Organize amigo secreto online com sorteio, convites, lista de desejos, mensagens anônimas, lembretes e revelação. Ideal para Natal, Páscoa, amigo doce, empresas, família e amigos.",
+    "Organize amigo secreto online com sorteio, convite, lista de desejos, mensagens anônimas e lembretes para Natal, empresas, família e amigos.",
   keywords: [
     "amigo secreto online",
     "app de amigo secreto",
@@ -29,7 +30,7 @@ export const metadata: Metadata = {
     canonical: "/",
   },
   openGraph: {
-    title: "MigOculto | Amigo secreto online sem complicação",
+    title: "MigOculto | App de amigo secreto online para sorteio, amigo doce e Natal",
     description:
       "Crie grupos, convide participantes, faça o sorteio e viva a revelação do amigo secreto com mais magia e menos trabalho.",
     url: siteUrl,
@@ -47,7 +48,7 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "MigOculto | Amigo secreto online sem complicação",
+    title: "MigOculto | App de amigo secreto online para sorteio, amigo doce e Natal",
     description: "App para organizar amigo secreto, amigo doce, Natal, Páscoa, empresas, família e amigos.",
     images: ["/images/logo.png"],
   },
@@ -96,18 +97,35 @@ const occasions = ["Natal", "Páscoa", "Amigo doce", "Confraternização", "Empr
 
 const organizationJsonLd = {
   "@context": "https://schema.org",
-  "@type": "SoftwareApplication",
-  name: "MigOculto",
-  applicationCategory: "LifestyleApplication",
-  operatingSystem: "iOS, Android",
-  description:
-    "Aplicativo para organizar amigo secreto online com sorteio, lista de desejos, mensagens anônimas, convites, notificações e revelação.",
-  url: siteUrl,
-  offers: {
-    "@type": "Offer",
-    price: "0",
-    priceCurrency: "BRL",
-  },
+  "@graph": [
+    {
+      "@type": "Organization",
+      "@id": `${siteUrl}/#organization`,
+      name: "MigOculto",
+      url: siteUrl,
+      logo: `${siteUrl}/images/logo.png`,
+      foundingDate: "2023",
+      sameAs: [appStoreUrl, googlePlayUrl],
+    },
+    {
+      "@type": "SoftwareApplication",
+      "@id": `${siteUrl}/#app`,
+      name: "MigOculto",
+      applicationCategory: "LifestyleApplication",
+      operatingSystem: "iOS, Android",
+      description:
+        "Aplicativo para organizar amigo secreto online com sorteio, lista de desejos, mensagens anônimas, convites, notificações e revelação.",
+      url: siteUrl,
+      publisher: {
+        "@id": `${siteUrl}/#organization`,
+      },
+      offers: {
+        "@type": "Offer",
+        price: "0",
+        priceCurrency: "BRL",
+      },
+    },
+  ],
 };
 
 export default function HomePage() {
@@ -222,6 +240,23 @@ export default function HomePage() {
               <FeatureCard title="Para famílias">Organize a troca de presentes sem depender de papelzinho, ligação ou grupo lotado de mensagens.</FeatureCard>
               <FeatureCard title="Para empresas">Conduza confraternizações com clareza, convite simples e menos trabalho para RH, líderes ou organizadores.</FeatureCard>
               <FeatureCard title="Para amigos">Deixe amigo doce, aniversários e encontros mais divertidos com mistério, pistas e listas de desejos.</FeatureCard>
+            </div>
+          </div>
+        </section>
+
+        <section className="bg-amber-50 px-4 pb-16 sm:px-8 sm:pb-20">
+          <div className="mx-auto max-w-4xl rounded-[32px] border border-red-100 bg-white/78 p-6 text-center shadow-[0_20px_70px_rgba(79,6,6,0.07)] sm:p-8">
+            <p className="text-sm font-black uppercase tracking-[0.22em] text-red-700">Guia rápido</p>
+            <h2 className="mt-3 text-3xl font-black tracking-tight sm:text-4xl">Por que usar um app de amigo secreto online?</h2>
+            <div className="mx-auto mt-5 max-w-3xl space-y-4 text-sm leading-7 text-red-950/72 sm:text-base sm:leading-8">
+              <p>
+                Um app de amigo secreto evita sorteios repetidos, perda de informações e dúvidas sobre quem participa. No MigOculto, o
+                organizador cria o grupo, compartilha o convite e mantém regras, data, local e participantes em um só lugar.
+              </p>
+              <p>
+                Para amigo secreto de Natal, amigo doce, Páscoa, confraternização de empresa ou encontro de família, a lista de desejos e
+                as mensagens anônimas ajudam a manter o mistério sem complicar a organização da brincadeira.
+              </p>
             </div>
           </div>
         </section>

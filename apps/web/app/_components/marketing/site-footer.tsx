@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { AppStoreButtons } from "./app-store-buttons";
-import { contactEmail } from "./store-links";
+import { contactHref, contactLabel } from "./store-links";
 
 export function SiteFooter() {
   return (
@@ -8,7 +8,7 @@ export function SiteFooter() {
       <div className="mx-auto grid max-w-7xl gap-10 justify-items-center lg:grid-cols-[1.3fr_0.7fr_0.8fr] lg:justify-items-start">
         <div className="flex max-w-md flex-col items-center lg:items-start">
           <div className="flex items-center justify-center gap-3 lg:justify-start">
-            <img src="/images/logo.png" alt="" className="size-12 rounded-2xl bg-amber-50 p-1" />
+            <img src="/images/logo.png" alt="Logo do MigOculto" className="size-12 rounded-2xl bg-amber-50 p-1" />
             <span className="text-xl font-black">MigOculto</span>
           </div>
           <p className="mt-4 text-sm leading-7 text-amber-50/72">
@@ -26,8 +26,8 @@ export function SiteFooter() {
               </Link>
             </li>
             <li>
-              <a className="transition hover:text-amber-200" href={`mailto:${contactEmail}`}>
-                {contactEmail}
+              <a className="transition hover:text-amber-200" href={contactHref}>
+                {contactLabel}
               </a>
             </li>
           </ul>

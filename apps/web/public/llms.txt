@@ -1,0 +1,22 @@
+# MigOculto
+
+MigOculto is a Brazilian app for organizing amigo secreto online, also known as amigo oculto, secret santa and amigo doce.
+
+The product helps people create groups, invite participants, run a private draw, manage wishlists, exchange anonymous messages, send reminders and prepare the reveal moment.
+
+Primary pages:
+- https://migoculto.com.br/
+- https://migoculto.com.br/politica-de-privacidade
+
+Primary topics:
+- amigo secreto online
+- app de amigo secreto
+- sorteio de amigo secreto
+- organizar amigo secreto
+- amigo oculto online
+- amigo doce
+- amigo secreto de Natal
+- amigo secreto para empresas
+- lista de desejos amigo secreto
+
+Contact is available through the official website footer.

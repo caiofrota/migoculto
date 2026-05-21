@@ -1,5 +1,6 @@
 import { Metadata } from "next";
 import "./globals.css";
+import { AnalyticsScripts } from "./_components/marketing/analytics-scripts";
 import { Providers } from "./providers";
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -32,6 +33,7 @@ export default async function RootLayout({ children }: Props) {
     <html lang="pt-BR">
       <body>
         <Providers>{children}</Providers>
+        <AnalyticsScripts />
       </body>
     </html>
   );
