@@ -9,8 +9,7 @@
   "scripts": {
     "build": "turbo run build",
     "coverage": "vitest run --coverage",
-    "dev": "pnpm dev:mobile",
-    "dev:all": "turbo run dev",
+    "dev": "turbo run dev",
     "dev:mobile": "pnpm --filter @migoculto/mobile dev",
     "dev:mobile:client": "pnpm --filter @migoculto/mobile dev:client",
     "dev:mobile:clear": "pnpm --filter @migoculto/mobile dev:clear",
@@ -21,7 +20,7 @@
     "build:dev:android": "pnpm --filter @migoculto/mobile eas:build:development:android",
     "build:dev:ios": "pnpm --filter @migoculto/mobile eas:build:development:ios",
     "dev:web": "pnpm --filter @migoculto/web dev",
-    "db:up": "docker compose up -d postgres",
+    "db:up": "docker compose up -d",
     "db:generate": "pnpm --filter @migoculto/db db:generate",
     "db:check": "pnpm --filter @migoculto/db db:check",
     "db:migrate": "pnpm --filter @migoculto/db db:migrate",
