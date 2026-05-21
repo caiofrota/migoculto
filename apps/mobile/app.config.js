@@ -1,7 +1,7 @@
 const { expo } = require("./app.json");
 
 const profile = process.env.EAS_BUILD_PROFILE;
-const variant = process.env.APP_VARIANT ?? (profile === "development" ? "development" : "production");
+const variant = profile ? (profile === "development" ? "development" : "production") : (process.env.APP_VARIANT ?? "production");
 const isDevelopment = variant === "development";
 
 module.exports = {

@@ -1,7 +1,7 @@
 import prisma from "__tests__/__mocks__/prisma";
 import { POST } from "app/api/v1/session/me/route";
 import { NextRequest } from "next/server";
-import { beforeAll, describe, expect, it, vi } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 
 const hoisted = vi.hoisted(() => ({ mockedVerifyToken: vi.fn() }));
 vi.mock("jose", () => ({
@@ -9,6 +9,16 @@ vi.mock("jose", () => ({
     return { payload: hoisted.mockedVerifyToken() };
   },
 }));
+
+vi.mock("@migoculto/db", async () => {
+  const { default: prisma } = await import("__tests__/__mocks__/prisma");
+  class PrismaClientMock {
+    constructor() {
+      return prisma;
+    }
+  }
+  return { Prisma: { PrismaClientKnownRequestError: class PrismaClientKnownRequestError extends Error {} }, PrismaClient: PrismaClientMock, prisma };
+});
 
 describe("GET /api/v1/session/me", () => {
   const users = [
@@ -37,17 +47,6 @@ describe("GET /api/v1/session/me", () => {
       role: "USER" as const,
     },
   ];
-
-  beforeAll(() => {
-    vi.mock("@migoculto/db", () => {
-      class PrismaClientMock {
-        constructor() {
-          return prisma;
-        }
-      }
-      return { Prisma: { PrismaClientKnownRequestError: class PrismaClientKnownRequestError extends Error {} }, PrismaClient: PrismaClientMock, prisma };
-    });
-  });
 
   it("should return the current session user", async () => {
     hoisted.mockedVerifyToken.mockReturnValueOnce({ sub: "1" });
