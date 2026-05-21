@@ -1,0 +1,6 @@
+{
+  "app.name": "MigOculto",
+  "auth.invalidCredentials": "Nome de usuário ou senha está incorreto.",
+  "errors.unexpected": "Um erro inesperado ocorreu.",
+  "validation.invalidRequest": "Dados inválidos."
+}

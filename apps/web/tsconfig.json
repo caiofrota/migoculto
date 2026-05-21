@@ -1,0 +1,26 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "allowJs": true,
+    "incremental": true,
+    "jsx": "react-jsx",
+    "baseUrl": ".",
+    "noUncheckedIndexedAccess": false,
+    "noEmit": true,
+    "plugins": [
+      {
+        "name": "next"
+      }
+    ],
+    "paths": {
+      "@/*": ["./*"],
+      "@migoculto/api-client": ["../../packages/api-client/src/index.ts"],
+      "@migoculto/db": ["../../packages/db/src/index.ts"],
+      "@migoculto/i18n": ["../../packages/i18n/src/index.ts"],
+      "@migoculto/types": ["../../packages/types/src/index.ts"],
+      "@migoculto/ui": ["../../packages/ui/src/index.ts"]
+    }
+  },
+  "include": ["next-env.d.ts", ".next/types/**/*.ts", ".next/dev/types/**/*.ts", "**/*.mts", "**/*.ts", "**/*.tsx"],
+  "exclude": ["node_modules", ".next", "__tests__"]
+}
