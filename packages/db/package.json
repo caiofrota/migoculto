@@ -1,0 +1,34 @@
+{
+  "name": "@migoculto/db",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "build": "prisma generate --schema prisma/schema.prisma && tsc --noEmit",
+    "typecheck": "tsc --noEmit",
+    "check-types": "pnpm typecheck",
+    "db:generate": "prisma generate --schema prisma/schema.prisma",
+    "db:check": "prisma validate --schema prisma/schema.prisma",
+    "db:migrate": "prisma migrate dev --schema prisma/schema.prisma",
+    "db:deploy": "prisma migrate deploy --schema prisma/schema.prisma",
+    "db:reset": "prisma migrate reset --schema prisma/schema.prisma",
+    "db:seed": "tsx prisma/seed.ts",
+    "prisma:generate": "prisma generate --schema prisma/schema.prisma"
+  },
+  "dependencies": {
+    "@prisma/adapter-neon": "^7.1.0",
+    "@prisma/adapter-pg": "^7.1.0",
+    "@prisma/client": "^7.1.0",
+    "nanoid": "^5.1.6"
+  },
+  "devDependencies": {
+    "@types/node": "^24.10.1",
+    "bcryptjs": "^3.0.3",
+    "prisma": "^7.1.0",
+    "tsx": "^4.21.0",
+    "typescript": "5.9.3"
+  }
+}
