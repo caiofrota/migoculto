@@ -11,7 +11,7 @@ import { appStoreUrl, googlePlayUrl } from "./_components/marketing/store-links"
 const siteUrl = "https://migoculto.com.br";
 
 export const metadata: Metadata = {
-  title: "MigOculto | App de amigo secreto online para sorteio, amigo doce e Natal",
+  title: "MigOculto | App para sorteio de amigo secreto online",
   description:
     "Organize amigo secreto online com sorteio, convite, lista de desejos, mensagens anônimas e lembretes para Natal, empresas, família e amigos.",
   keywords: [
@@ -30,9 +30,8 @@ export const metadata: Metadata = {
     canonical: "/",
   },
   openGraph: {
-    title: "MigOculto | App de amigo secreto online para sorteio, amigo doce e Natal",
-    description:
-      "Crie grupos, convide participantes, faça o sorteio e viva a revelação do amigo secreto com mais magia e menos trabalho.",
+    title: "MigOculto | App para sorteio de amigo secreto online",
+    description: "Crie grupos, convide participantes, faça o sorteio e viva a revelação do amigo secreto com mais magia e menos trabalho.",
     url: siteUrl,
     siteName: "MigOculto",
     images: [
@@ -48,7 +47,7 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "MigOculto | App de amigo secreto online para sorteio, amigo doce e Natal",
+    title: "MigOculto | App para sorteio de amigo secreto online",
     description: "App para organizar amigo secreto, amigo doce, Natal, Páscoa, empresas, família e amigos.",
     images: ["/images/logo.png"],
   },
@@ -145,7 +144,8 @@ export default function HomePage() {
                 Organize amigo secreto sem complicação.
               </h1>
               <p className="mx-auto mt-5 max-w-2xl text-base leading-7 text-amber-50/78 sm:text-xl sm:leading-8 lg:mx-0">
-                O MigOculto ajuda você a criar grupos, sortear participantes, montar listas de desejos, trocar mensagens anônimas e preparar a revelação para Natal, Páscoa, empresas, família, amigos e outras ocasiões.
+                O MigOculto ajuda você a criar grupos, sortear participantes, montar listas de desejos, trocar mensagens anônimas e preparar
+                a revelação para Natal, Páscoa, empresas, família, amigos e outras ocasiões.
               </p>
               <AppStoreButtons className="mt-8 items-center justify-center lg:justify-start" />
               <p className="mt-5 text-sm text-amber-100/68">Disponível para iOS e Android.</p>
@@ -164,7 +164,9 @@ export default function HomePage() {
                         <p className="text-xs text-red-950/55">12 participantes</p>
                       </div>
                     </div>
-                    <span className="rounded-full bg-emerald-900 px-2.5 py-1 text-[0.7rem] font-bold text-amber-50 sm:px-3 sm:text-xs">Sorteado</span>
+                    <span className="rounded-full bg-emerald-900 px-2.5 py-1 text-[0.7rem] font-bold text-amber-50 sm:px-3 sm:text-xs">
+                      Sorteado
+                    </span>
                   </div>
 
                   <div className="mt-5 space-y-3 sm:mt-7">
@@ -237,9 +239,15 @@ export default function HomePage() {
         <section className="px-4 py-16 sm:px-8 sm:py-20">
           <div className="mx-auto max-w-7xl">
             <div className="grid gap-6 lg:grid-cols-3">
-              <FeatureCard title="Para famílias">Organize a troca de presentes sem depender de papelzinho, ligação ou grupo lotado de mensagens.</FeatureCard>
-              <FeatureCard title="Para empresas">Conduza confraternizações com clareza, convite simples e menos trabalho para RH, líderes ou organizadores.</FeatureCard>
-              <FeatureCard title="Para amigos">Deixe amigo doce, aniversários e encontros mais divertidos com mistério, pistas e listas de desejos.</FeatureCard>
+              <FeatureCard title="Para famílias">
+                Organize a troca de presentes sem depender de papelzinho, ligação ou grupo lotado de mensagens.
+              </FeatureCard>
+              <FeatureCard title="Para empresas">
+                Conduza confraternizações com clareza, convite simples e menos trabalho para RH, líderes ou organizadores.
+              </FeatureCard>
+              <FeatureCard title="Para amigos">
+                Deixe amigo doce, aniversários e encontros mais divertidos com mistério, pistas e listas de desejos.
+              </FeatureCard>
             </div>
           </div>
         </section>
@@ -254,8 +262,8 @@ export default function HomePage() {
                 organizador cria o grupo, compartilha o convite e mantém regras, data, local e participantes em um só lugar.
               </p>
               <p>
-                Para amigo secreto de Natal, amigo doce, Páscoa, confraternização de empresa ou encontro de família, a lista de desejos e
-                as mensagens anônimas ajudam a manter o mistério sem complicar a organização da brincadeira.
+                Para amigo secreto de Natal, amigo doce, Páscoa, confraternização de empresa ou encontro de família, a lista de desejos e as
+                mensagens anônimas ajudam a manter o mistério sem complicar a organização da brincadeira.
               </p>
             </div>
           </div>
@@ -269,7 +277,10 @@ export default function HomePage() {
             </div>
             <div className="mt-10 flex flex-wrap gap-3">
               {occasions.map((occasion) => (
-                <span key={occasion} className="rounded-full border border-amber-100/18 bg-amber-50/10 px-5 py-3 text-sm font-bold text-amber-50 shadow-lg shadow-red-950/20">
+                <span
+                  key={occasion}
+                  className="rounded-full border border-amber-100/18 bg-amber-50/10 px-5 py-3 text-sm font-bold text-amber-50 shadow-lg shadow-red-950/20"
+                >
                   {occasion}
                 </span>
               ))}
@@ -287,7 +298,8 @@ export default function HomePage() {
               <p className="text-sm font-black uppercase tracking-[0.22em] text-red-700">Confiança</p>
               <h2 className="mt-3 text-3xl font-black tracking-tight sm:text-5xl">Feito para organizar brincadeiras reais.</h2>
               <p className="mt-5 text-base leading-8 text-red-950/70">
-                O MigOculto nasceu para resolver a parte chata do amigo secreto e preservar o que importa: expectativa, carinho, surpresa e boas histórias no dia da revelação.
+                O MigOculto nasceu para resolver a parte chata do amigo secreto e preservar o que importa: expectativa, carinho, surpresa e
+                boas histórias no dia da revelação.
               </p>
             </div>
           </div>
